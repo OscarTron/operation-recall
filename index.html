@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Operation Recall — Secret Agent Memory Trainer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#edf0f4; --panel:#ffffff; --panel2:#f4f7fa; --ink:#17263f; --ink-soft:#4c5d75;
+        --line:#d3dbe6; --accent:#e8930c; --accent-dark:#b96f04; --accent-soft:#fdf0da;
+        --teal:#0e7c7b; --teal-soft:#e0f2f1; --red:#d64545; --red-soft:#fbe7e7;
+        --green:#2e9e5b; --green-soft:#e4f4ea; --gold:#f0ad12; --stamp:#c93a3a;
+        --shadow:0 2px 10px rgba(23,38,63,.08), 0 10px 28px rgba(23,38,63,.07);
+        --radius:16px;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#0a1120; --panel:#141f36; --panel2:#1a2947; --ink:#eef2f9; --ink-soft:#a7b4c9;
+          --line:#2b3c5c; --accent:#f5a623; --accent-dark:#f5a623; --accent-soft:#3a2c10;
+          --teal:#3ec6c4; --teal-soft:#123a3d; --red:#ff7a72; --red-soft:#3d1d1d;
+          --green:#5fce8a; --green-soft:#173626; --gold:#ffc93c; --stamp:#ff8a80;
+          --shadow:0 2px 10px rgba(0,0,0,.35), 0 10px 28px rgba(0,0,0,.3);
+        }
+      }
+      *{box-sizing:border-box;}
+      html{-webkit-text-size-adjust:100%;}
+      body{
+        margin:0; background:var(--bg); color:var(--ink);
+        font-family:"Nunito",system-ui,sans-serif; font-size:17px; line-height:1.45;
+      }
+      .wrap{max-width:960px; margin:0 auto; padding:20px 16px 56px;}
+      h1,h2,h3{margin:0; line-height:1.15;}
+      button{font-family:inherit; cursor:pointer;}
+      :focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:6px;}
+
+      /* ---------- Title block ---------- */
+      .titleblock{text-align:center; padding:14px 0 6px;}
+      .classified{
+        display:inline-block; font-family:"Space Mono",monospace; font-size:12px; font-weight:700;
+        letter-spacing:.22em; color:var(--stamp); border:2px solid var(--stamp);
+        padding:3px 10px 2px; border-radius:4px; transform:rotate(-2deg); text-transform:uppercase;
+      }
+      .titleblock h1{
+        font-family:"Bungee",cursive; font-weight:400; font-size:clamp(34px,7.5vw,58px);
+        letter-spacing:.01em; margin:12px 0 4px; color:var(--ink);
+      }
+      .titleblock h1 .rec{color:var(--accent-dark);}
+      .tagline{color:var(--ink-soft); font-weight:700; font-size:clamp(15px,3.4vw,18px); margin:0;}
+      .loop-line{
+        display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:14px auto 0;
+        font-family:"Space Mono",monospace; font-size:12.5px; font-weight:700; letter-spacing:.04em;
+      }
+      .loop-line span{background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:4px 11px;}
+      .loop-line .arr{border:none; background:none; padding:4px 0; color:var(--ink-soft);}
+
+      /* ---------- Agent bar ---------- */
+      .agentbar{
+        display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin:22px 0 14px;
+        background:var(--panel); border:1.5px solid var(--line); border-radius:var(--radius);
+        padding:14px 16px; box-shadow:var(--shadow);
+      }
+      .agentbar .field{flex:1 1 200px;}
+      .agentbar label{display:block; font-family:"Space Mono",monospace; font-size:11.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:5px;}
+      .agentbar input{
+        width:100%; font-family:inherit; font-size:17px; font-weight:800; color:var(--ink);
+        background:var(--panel2); border:1.5px solid var(--line); border-radius:10px; padding:10px 12px;
+      }
+      .soundbtn{
+        display:inline-flex; align-items:center; gap:8px; min-height:48px; padding:10px 16px;
+        background:var(--panel2); border:1.5px solid var(--line); border-radius:10px;
+        font-weight:800; font-size:15px; color:var(--ink);
+      }
+      .soundbtn[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent);}
+
+      /* ---------- Status strip ---------- */
+      .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px;}
+      @media (max-width:640px){ .stats{grid-template-columns:repeat(2,1fr);} }
+      .stat{background:var(--panel); border:1.5px solid var(--line); border-radius:var(--radius); padding:12px 14px; box-shadow:var(--shadow);}
+      .stat .k{font-family:"Space Mono",monospace; font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-soft);}
+      .stat .v{font-size:22px; font-weight:900; margin-top:2px;}
+      .stat .sub{font-size:13px; font-weight:700; color:var(--ink-soft);}
+      .rankbar{height:8px; background:var(--panel2); border:1px solid var(--line); border-radius:99px; margin-top:8px; overflow:hidden;}
+      .rankbar i{display:block; height:100%; background:var(--accent); border-radius:99px; transition:width .5s ease;}
+      .stars-display{color:var(--gold); letter-spacing:2px; font-size:20px;}
+      .stars-display .off{color:var(--line);}
+
+      /* ---------- Training day ---------- */
+      .daycard{
+        position:relative; background:var(--panel); border:1.5px solid var(--line); border-radius:var(--radius);
+        padding:16px; box-shadow:var(--shadow); margin-bottom:22px; overflow:hidden;
+      }
+      .daycard h2{font-size:19px; font-weight:900;}
+      .daycard p{margin:4px 0 0; color:var(--ink-soft); font-weight:700; font-size:14.5px;}
+      .dayslots{display:flex; gap:10px; margin-top:12px; align-items:center; flex-wrap:wrap;}
+      .dayslot{
+        width:52px; height:52px; border-radius:50%; border:2.5px dashed var(--line);
+        display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--ink-soft);
+        font-weight:900; background:var(--panel2);
+      }
+      .dayslot.done{border-style:solid; border-color:var(--green); background:var(--green-soft); color:var(--green);}
+      .stamp{
+        position:absolute; top:14px; right:14px; transform:rotate(6deg);
+        font-family:"Space Mono",monospace; font-weight:700; font-size:12px; letter-spacing:.14em;
+        color:var(--stamp); border:2.5px solid var(--stamp); border-radius:5px; padding:4px 9px;
+        text-transform:uppercase; background:var(--panel);
+      }
+
+      /* ---------- Mission grid ---------- */
+      .section-head{display:flex; align-items:baseline; gap:10px; margin:6px 0 12px;}
+      .section-head h2{font-family:"Bungee",cursive; font-weight:400; font-size:clamp(20px,4.5vw,26px);}
+      .section-head .note{color:var(--ink-soft); font-weight:700; font-size:14px;}
+      .mission-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr)); gap:12px;}
+      .mcard{
+        text-align:left; background:var(--panel); border:1.5px solid var(--line); border-radius:var(--radius);
+        padding:16px 14px 14px; box-shadow:var(--shadow); color:var(--ink); width:100%;
+        transition:transform .15s ease, border-color .15s ease;
+      }
+      .mcard:hover{transform:translateY(-3px); border-color:var(--accent);}
+      .mcard .icon{
+        width:52px; height:52px; border-radius:13px; background:var(--accent-soft);
+        display:flex; align-items:center; justify-content:center; color:var(--accent-dark); margin-bottom:10px;
+      }
+      .mcard h3{font-size:17.5px; font-weight:900;}
+      .mcard .skill{font-size:13.5px; font-weight:700; color:var(--ink-soft); margin:3px 0 10px; min-height:38px;}
+      .mcard .meta{display:flex; justify-content:space-between; align-items:center; gap:6px;}
+      .lvlchip{font-family:"Space Mono",monospace; font-size:11.5px; font-weight:700; background:var(--teal-soft); color:var(--teal); border-radius:999px; padding:3px 9px;}
+      .beststars{color:var(--gold); font-size:15px; letter-spacing:1px;}
+      .beststars .off{color:var(--line);}
+
+      /* ---------- History ---------- */
+      .history{margin-top:26px;}
+      .history ul{list-style:none; margin:0; padding:0; display:grid; gap:8px;}
+      .history li{
+        display:flex; align-items:center; gap:10px; background:var(--panel); border:1.5px solid var(--line);
+        border-radius:12px; padding:10px 14px; font-weight:800; font-size:15px;
+      }
+      .history li .when{margin-left:auto; color:var(--ink-soft); font-size:13px; font-weight:700;}
+      .history .empty{
+        background:var(--panel2); border:1.5px dashed var(--line); border-radius:12px;
+        padding:16px; text-align:center; color:var(--ink-soft); font-weight:700;
+      }
+      .foot-note{margin-top:30px; text-align:center; color:var(--ink-soft); font-size:13.5px; font-weight:700;}
+
+      /* ---------- Buttons ---------- */
+      .btn{
+        display:inline-flex; align-items:center; justify-content:center; gap:8px;
+        min-height:54px; padding:13px 24px; border-radius:13px; border:none;
+        background:var(--accent); color:#1d1405; font-size:17px; font-weight:900;
+        box-shadow:0 3px 0 var(--accent-dark); transition:transform .1s ease, box-shadow .1s ease;
+      }
+      .btn:active{transform:translateY(2px); box-shadow:0 1px 0 var(--accent-dark);}
+      .btn.ghost{background:var(--panel); color:var(--ink); border:1.5px solid var(--line); box-shadow:none;}
+      .btn.teal{background:var(--teal); color:#fff; box-shadow:0 3px 0 #0a5c5b;}
+      .btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+      .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;}
+      .btnrow .btn{flex:1 1 160px;}
+
+      /* ---------- Game view ---------- */
+      .gamehead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+      .backbtn{
+        display:inline-flex; align-items:center; gap:6px; min-height:46px; padding:9px 15px;
+        background:var(--panel); border:1.5px solid var(--line); border-radius:11px;
+        font-weight:900; font-size:15px; color:var(--ink);
+      }
+      .gamehead h2{font-family:"Bungee",cursive; font-weight:400; font-size:clamp(20px,5vw,28px);}
+      .phasecard{
+        background:var(--panel); border:1.5px solid var(--line); border-radius:20px;
+        box-shadow:var(--shadow); padding:20px 18px 22px;
+      }
+      .phase-tag{
+        display:inline-block; font-family:"Space Mono",monospace; font-size:12px; font-weight:700;
+        letter-spacing:.16em; text-transform:uppercase; padding:4px 11px; border-radius:999px; margin-bottom:12px;
+      }
+      .phase-tag.observe{background:var(--accent-soft); color:var(--accent-dark);}
+      .phase-tag.recall{background:var(--teal-soft); color:var(--teal);}
+      .phase-tag.result{background:var(--green-soft); color:var(--green);}
+      .phasecard h3{font-size:clamp(20px,4.6vw,25px); font-weight:900; margin-bottom:6px;}
+      .phasecard .inst{color:var(--ink-soft); font-weight:700; margin:0 0 16px;}
+      .countwrap{display:flex; align-items:center; gap:10px; margin:0 0 16px;}
+      .counttrack{flex:1; height:12px; background:var(--panel2); border:1px solid var(--line); border-radius:99px; overflow:hidden;}
+      .countfill{height:100%; width:100%; background:var(--accent); border-radius:99px;}
+      .countlabel{font-family:"Space Mono",monospace; font-weight:700; font-size:15px; min-width:38px; text-align:right;}
+
+      /* tray / pick grids */
+      .tilegrid{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:6px 0 4px;}
+      .tile{
+        width:76px; height:76px; border-radius:15px; background:var(--panel2);
+        border:2px solid var(--line); display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:1px; font-size:32px; line-height:1.1; padding:4px;
+      }
+      .tile .tname{font-size:10.5px; font-weight:800; color:var(--ink-soft); font-family:"Nunito",sans-serif; text-align:center; line-height:1.1;}
+      button.tile{cursor:pointer; font-family:inherit;}
+      button.tile.sel{border-color:var(--teal); background:var(--teal-soft); box-shadow:0 0 0 2px var(--teal) inset;}
+      button.tile.right{border-color:var(--green); background:var(--green-soft);}
+      button.tile.wrong{border-color:var(--red); background:var(--red-soft);}
+      .covered{
+        text-align:center; padding:34px 10px; border:2.5px dashed var(--line); border-radius:15px;
+        background:var(--panel2); font-size:44px;
+      }
+      .covered .ctext{font-size:16px; font-weight:900; color:var(--ink-soft); margin-top:6px; font-family:"Nunito",sans-serif;}
+
+      /* answer options */
+      .opts{display:grid; gap:10px; margin-top:4px;}
+      @media (min-width:640px){ .opts.two{grid-template-columns:1fr 1fr;} }
+      .opt{
+        display:flex; align-items:center; gap:12px; width:100%; text-align:left; min-height:58px;
+        padding:12px 16px; border-radius:13px; background:var(--panel2); border:2px solid var(--line);
+        font-size:17px; font-weight:800; color:var(--ink);
+      }
+      .opt .oemoji{font-size:26px; line-height:1;}
+      .opt.right{border-color:var(--green); background:var(--green-soft);}
+      .opt.wrong{border-color:var(--red); background:var(--red-soft);}
+      .opt:disabled{cursor:default; opacity:1;}
+      .feedback{min-height:26px; font-weight:900; font-size:16.5px; margin-top:12px;}
+      .feedback.good{color:var(--green);}
+      .feedback.bad{color:var(--red);}
+      .selcount{font-family:"Space Mono",monospace; font-weight:700; font-size:14px; color:var(--ink-soft); text-align:center; margin-top:10px;}
+
+      /* code pads */
+      .padgrid{display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:440px; margin:4px auto 0;}
+      .pad{
+        min-height:88px; border-radius:18px; border:3px solid transparent; color:#fff;
+        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+        font-weight:900; font-size:17px; transition:transform .08s ease, filter .08s ease;
+      }
+      .pad .pshape{font-size:30px; line-height:1;}
+      .pad.lit{filter:brightness(1.45) saturate(1.2); transform:scale(1.045);}
+      .pad.bad{border-color:var(--ink); filter:brightness(.75);}
+      .pad:disabled{cursor:default;}
+      .seqdots{display:flex; gap:7px; justify-content:center; margin:14px 0 2px; flex-wrap:wrap;}
+      .seqdots i{width:15px; height:15px; border-radius:50%; background:var(--panel2); border:2px solid var(--line);}
+      .seqdots i.done{background:var(--teal); border-color:var(--teal);}
+      .seqdots i.cur{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+
+      /* agent ID card */
+      .idcard{
+        max-width:430px; margin:0 auto; border:2.5px solid var(--ink); border-radius:18px; overflow:hidden;
+        background:var(--panel); text-align:left;
+      }
+      .idcard .idhead{
+        background:var(--ink); color:var(--bg); padding:9px 16px; display:flex; justify-content:space-between; align-items:center;
+        font-family:"Space Mono",monospace; font-size:12px; font-weight:700; letter-spacing:.15em;
+      }
+      .idcard .idbody{padding:16px; display:grid; gap:9px;}
+      .idrow{display:flex; justify-content:space-between; gap:12px; border-bottom:1.5px dashed var(--line); padding-bottom:8px;}
+      .idrow:last-child{border-bottom:none; padding-bottom:0;}
+      .idrow .k{font-family:"Space Mono",monospace; font-size:11.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); padding-top:3px;}
+      .idrow .val{font-weight:900; font-size:17.5px; text-align:right;}
+      .idrow .val .big{font-size:23px;}
+      .badgeswatch{display:inline-flex; align-items:center; gap:7px;}
+      .badgeswatch .sw{width:22px; height:22px; border-radius:6px; display:inline-block; border:2px solid rgba(0,0,0,.18);}
+
+      /* scene grid (what's changed / route) */
+      .scenegrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:400px; margin:4px auto 0;}
+      .cell{
+        position:relative; aspect-ratio:1; border-radius:15px; background:var(--panel2); border:2px solid var(--line);
+        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; font-size:36px; padding:4px;
+      }
+      .cell .cname{font-size:11px; font-weight:800; color:var(--ink-soft); text-align:center; line-height:1.1;}
+      button.cell{cursor:pointer; font-family:inherit;}
+      button.cell.marked{border-color:var(--stamp); box-shadow:0 0 0 3px var(--red-soft); background:var(--red-soft);}
+      button.cell.right{border-color:var(--green); background:var(--green-soft); box-shadow:none;}
+      button.cell.missed{border-color:var(--gold); background:var(--accent-soft); box-shadow:0 0 0 2px var(--gold);}
+      .cell .stopnum{
+        position:absolute; top:-9px; left:-9px; width:30px; height:30px; border-radius:50%;
+        background:var(--accent); color:#1d1405; font-size:16px; font-weight:900;
+        display:flex; align-items:center; justify-content:center; border:2.5px solid var(--panel);
+        font-family:"Nunito",sans-serif;
+      }
+      .cell.lit{border-color:var(--accent); background:var(--accent-soft);}
+      button.cell.done-stop{border-color:var(--teal); background:var(--teal-soft);}
+      .darkout{
+        text-align:center; padding:40px 12px; border-radius:15px; background:#101828; color:#f5d90a;
+        font-size:40px;
+      }
+      .darkout .dtext{font-size:16px; font-weight:900; color:#e8ecf4; margin-top:8px; font-family:"Nunito",sans-serif;}
+
+      /* mission brief */
+      .briefbox{
+        max-width:560px; margin:0 auto; background:var(--panel2); border:1.5px solid var(--line);
+        border-left:6px solid var(--accent); border-radius:12px; padding:18px 20px;
+        font-size:19px; font-weight:700; line-height:1.6; text-align:left;
+      }
+      .briefbox .bhead{font-family:"Space Mono",monospace; font-size:11.5px; font-weight:700; letter-spacing:.16em; color:var(--stamp); margin-bottom:8px;}
+
+      /* result */
+      .resultstars{text-align:center; font-size:52px; letter-spacing:8px; color:var(--gold); line-height:1.1; margin:6px 0 2px;}
+      .resultstars .off{color:var(--line);}
+      .resultscore{text-align:center; font-weight:900; font-size:19px;}
+      .resultmsg{text-align:center; color:var(--ink-soft); font-weight:700; margin:6px auto 0; max-width:460px;}
+      .tipbox{
+        margin:18px auto 0; max-width:520px; background:var(--accent-soft); border:1.5px solid var(--accent);
+        border-radius:13px; padding:13px 16px; font-weight:800; font-size:15.5px; text-align:left;
+      }
+      .tipbox .tk{font-family:"Space Mono",monospace; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-dark); display:block; margin-bottom:3px;}
+      .lvlup{
+        text-align:center; margin-top:12px; font-family:"Space Mono",monospace; font-weight:700; font-size:14px; color:var(--teal);
+      }
+      button.tile.missed{border-color:var(--gold); background:var(--accent-soft);}
+      .hidden{display:none !important;}
+      @media (prefers-reduced-motion: reduce){
+        *{transition:none !important; animation:none !important;}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <!-- ================= HOME / HQ ================= -->
+      <main id="view-home">
+        <div class="titleblock">
+          <span class="classified">Top Secret · Agents Only</span>
+          <h1>Operation <span class="rec">Recall</span></h1>
+          <p class="tagline">Secret agent memory training for sharp young minds.</p>
+          <div class="loop-line" aria-hidden="true">
+            <span>1 · Observe</span><span class="arr">→</span>
+            <span>2 · It disappears</span><span class="arr">→</span>
+            <span>3 · Recall</span><span class="arr">→</span>
+            <span>4 · Debrief</span>
+          </div>
+        </div>
+
+        <div class="agentbar">
+          <div class="field">
+            <label for="codename">Agent codename</label>
+            <input id="codename" type="text" maxlength="18" value="Agent Nova" autocomplete="off" />
+          </div>
+          <button class="soundbtn" id="soundbtn" aria-pressed="false" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><line x1="16" y1="9" x2="22" y2="15"/><line x1="22" y1="9" x2="16" y2="15"/></svg>
+            <span id="soundlabel">Sound: Off</span>
+          </button>
+        </div>
+
+        <section class="stats" aria-label="Agent progress">
+          <div class="stat">
+            <div class="k">Rank</div>
+            <div class="v" id="stat-rank">Cadet</div>
+            <div class="rankbar"><i id="rankfill" style="width:0%"></i></div>
+            <div class="sub" id="stat-ranknext">6 stars to Field Agent</div>
+          </div>
+          <div class="stat">
+            <div class="k">Stars earned</div>
+            <div class="v"><span id="stat-stars">0</span> <span class="stars-display" id="stat-starsglyph">★</span></div>
+            <div class="sub">3 stars = a perfect mission</div>
+          </div>
+          <div class="stat">
+            <div class="k">Missions done</div>
+            <div class="v" id="stat-missions">0</div>
+            <div class="sub" id="stat-beststreak">Best streak: 0 perfect</div>
+          </div>
+          <div class="stat">
+            <div class="k">Current streak</div>
+            <div class="v" id="stat-streak">0</div>
+            <div class="sub">Perfect missions in a row</div>
+          </div>
+        </section>
+
+        <section class="daycard" aria-label="Training day">
+          <h2>Today's Training</h2>
+          <p>Complete 3 missions to finish today's training day.</p>
+          <div class="stamp hidden" id="daystamp">Training Day Complete</div>
+          <div class="dayslots" id="dayslots">
+            <div class="dayslot">1</div>
+            <div class="dayslot">2</div>
+            <div class="dayslot">3</div>
+            <button class="btn ghost hidden" id="newday" type="button" style="min-height:48px; padding:10px 18px;">Start a new training day</button>
+          </div>
+        </section>
+
+        <div class="section-head">
+          <h2>Choose a Mission</h2>
+          <span class="note">Missions get harder as you level up — and step back if you struggle. No fail screens here.</span>
+        </div>
+        <div class="mission-grid" id="mission-grid"></div>
+
+        <section class="history" aria-label="Recent missions">
+          <div class="section-head"><h2>Mission Log</h2></div>
+          <div id="history-box"></div>
+        </section>
+
+        <p class="foot-note">Built for agents aged about 8–11. Short missions, big buttons, and every color clue comes with a shape or a label too.</p>
+      </main>
+
+      <!-- ================= GAME ================= -->
+      <main id="view-game" class="hidden">
+        <div class="gamehead">
+          <button class="backbtn" id="backbtn" type="button">← HQ</button>
+          <h2 id="game-title">Mission</h2>
+          <span class="lvlchip" id="game-level">Level 1</span>
+        </div>
+        <div class="phasecard" id="game-body"></div>
+      </main>
+
+    </div>
+
+    <script>
+      "use strict";
+      /* ================= utilities ================= */
+      function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+      function sample(a,n){ return shuffle(a).slice(0,n); }
+      function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+      function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+      function starStr(n){ var s=""; for(var i=0;i<3;i++){ s += i<n ? "★" : '<span class="off">★</span>'; } return s; }
+
+      var timers=[];
+      function track(id){ timers.push(id); }
+      function clearTimers(){ timers.forEach(function(t){ clearInterval(t); clearTimeout(t); }); timers=[]; }
+      function later(fn,ms){ var id=setTimeout(fn,ms); track(id); return id; }
+
+      /* ================= sound (off by default) ================= */
+      var actx=null;
+      function tone(freq,dur,delay){
+        if(!state.sound) return;
+        try{
+          if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)();
+          if(actx.state==="suspended") actx.resume();
+          var o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime+(delay||0);
+          o.type="sine"; o.frequency.value=freq;
+          g.gain.setValueAtTime(0.0001,t);
+          g.gain.exponentialRampToValueAtTime(0.18,t+0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+          o.connect(g); g.connect(actx.destination);
+          o.start(t); o.stop(t+dur+0.05);
+        }catch(e){}
+      }
+      function sfx(kind){
+        if(kind==="good"){ tone(660,0.12,0); tone(880,0.16,0.1); }
+        else if(kind==="bad"){ tone(196,0.22,0); }
+        else if(kind==="tap"){ tone(520,0.06,0); }
+        else if(kind==="win"){ tone(523,0.12,0); tone(659,0.12,0.11); tone(784,0.2,0.22); }
+      }
+
+      /* ================= state (this session only) ================= */
+      var state={
+        codename:"Agent Nova",
+        stars:0, missionsDone:0, streak:0, bestStreak:0,
+        dayCount:0, dayComplete:false,
+        levels:{tray:1,code:1,agent:1,change:1,route:1,brief:1},
+        fails:{tray:0,code:0,agent:0,change:0,route:0,brief:0},
+        best:{},
+        history:[],
+        recent:{tray:[],code:[],agent:[],change:[],route:[],brief:[]},
+        sound:false,
+        current:null
+      };
+      var RANKS=[
+        {name:"Cadet",need:0},
+        {name:"Field Agent",need:6},
+        {name:"Senior Agent",need:15},
+        {name:"Master Spy",need:25}
+      ];
+      function rankInfo(){
+        var cur=RANKS[0], next=null;
+        for(var i=0;i<RANKS.length;i++){ if(state.stars>=RANKS[i].need){ cur=RANKS[i]; next=RANKS[i+1]||null; } }
+        return {cur:cur,next:next};
+      }
+      /* ---- session no-repeat guard: re-roll anything drawn recently ---- */
+      var RECENT_LIMIT=12;
+      function recentHas(bucket,sig){
+        var a=state.recent[bucket]; return a && a.indexOf(sig)!==-1;
+      }
+      function rememberRecent(bucket,sig){
+        var a=state.recent[bucket]||(state.recent[bucket]=[]);
+        a.push(sig); while(a.length>RECENT_LIMIT) a.shift();
+      }
+      function drawUnique(bucket,generator){
+        var last=null;
+        for(var attempt=0;attempt<16;attempt++){
+          var cand=generator(); last=cand;
+          if(!recentHas(bucket,cand.sig)){ rememberRecent(bucket,cand.sig); return cand.value; }
+        }
+        if(last){ rememberRecent(bucket,last.sig); return last.value; }
+        return null;
+      }
+
+      var MISSIONS={
+        tray:{ name:"Tray Recall", skill:"Memorize the tray — spot what's missing, or pick out everything you saw.",
+          tipGood:"Pro trick: group things in your head — the food pile, the tools, the toys. Groups are easier to hold than single items.",
+          tipLow:"Try this: when the tray appears, name each item out loud in your head, left to right. Saying it locks it in." },
+        code:{ name:"Code Sequence", skill:"Watch the secret code flash, then tap it back in the exact order.",
+          tipGood:"Agents chunk long codes: remember the first two as one pair, then the next two. Two small codes beat one long one.",
+          tipLow:"Whisper the shapes as they flash — “circle, star, triangle.” Hearing it in your head helps your hands remember." },
+        agent:{ name:"Agent ID", skill:"Study an agent's ID card, then answer questions about them from memory.",
+          tipGood:"You remembered like a real handler. Linking facts together — “the Fox agent with the gold star” — makes them stick as one picture.",
+          tipLow:"Make a silly sentence from the card: “Nova the Owl loves pizza and 42.” Silly is memorable — that's the trick." },
+        change:{ name:"What's Changed?", skill:"Study the room, the lights go out… then tap everything that's different.",
+          tipGood:"Sharp eyes, Agent. Scanning corner to corner in the same order every time means nothing hides from you.",
+          tipLow:"Next time, check the room in a pattern: top row, middle row, bottom row. A pattern catches changes a quick glance misses." },
+        route:{ name:"Route Recall", skill:"Watch the agent's route light up, then retrace every stop in order.",
+          tipGood:"Story trick mastered: turning stops into a little journey — “first the library, then over the bridge” — makes routes stick.",
+          tipLow:"Turn the route into a story as it lights up: “She starts at the park, crosses the bridge, ends at the tower.” Stories stick better than lists." },
+        brief:{ name:"Mission Brief", skill:"Read the mission brief carefully, then report back the key facts.",
+          tipGood:"Clean report, Agent. You pulled out the who, the where, and the code — exactly what HQ needs.",
+          tipLow:"Briefs hide four facts: WHO, WHERE, the CODE WORD, and WHAT HAPPENS FIRST. Hunt for those four and you'll nail the report." }
+      };
+      var ICONS={
+        tray:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 17h18l-2 3H5z"/><circle cx="8" cy="12" r="2.4"/><rect x="13.5" y="9.5" width="4.5" height="4.5" rx="1"/><path d="M12 4v3"/></svg>',
+        code:'<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="2.6"/><rect x="15" y="3.4" width="5.2" height="5.2" rx="1"/><path d="M6 14.5l2.4 4.4H3.6z"/><path d="M18 14.8l.9 1.9 2.1.3-1.5 1.5.3 2.1-1.8-1-1.8 1 .3-2.1-1.5-1.5 2.1-.3z"/></svg>',
+        agent:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="11" r="2.4"/><path d="M5.8 17c.6-1.7 1.8-2.5 3.2-2.5S11.6 15.3 12.2 17"/><path d="M15.5 9.5H19M15.5 13H19"/></svg>',
+        change:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+        route:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 19c6 0 4-6 9-6 3.5 0 3-2.4 3-4" stroke-dasharray="3 3.4"/><circle cx="5" cy="19" r="2.2" fill="currentColor" stroke="none"/><circle cx="17" cy="5.5" r="2.6"/></svg>',
+        brief:'<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 12h6M9 16h6"/></svg>'
+      };
+
+      /* ================= home rendering ================= */
+      var homeEl=document.getElementById("view-home");
+      var gameEl=document.getElementById("view-game");
+      var bodyEl=document.getElementById("game-body");
+
+      function renderHome(){
+        var r=rankInfo();
+        document.getElementById("stat-rank").textContent=r.cur.name;
+        if(r.next){
+          document.getElementById("stat-ranknext").textContent=(r.next.need-state.stars)+" stars to "+r.next.name;
+          document.getElementById("rankfill").style.width=Math.round(state.stars/r.next.need*100)+"%";
+        }else{
+          document.getElementById("stat-ranknext").textContent="Highest rank reached!";
+          document.getElementById("rankfill").style.width="100%";
+        }
+        document.getElementById("stat-stars").textContent=state.stars;
+        document.getElementById("stat-missions").textContent=state.missionsDone;
+        document.getElementById("stat-streak").textContent=state.streak;
+        document.getElementById("stat-beststreak").textContent="Best streak: "+state.bestStreak+" perfect";
+
+        var slots=document.querySelectorAll("#dayslots .dayslot");
+        slots.forEach(function(s,i){
+          if(i<state.dayCount){ s.classList.add("done"); s.textContent="✓"; }
+          else { s.classList.remove("done"); s.textContent=(i+1); }
+        });
+        document.getElementById("daystamp").classList.toggle("hidden",!state.dayComplete);
+        document.getElementById("newday").classList.toggle("hidden",!state.dayComplete);
+
+        var grid=document.getElementById("mission-grid");
+        grid.innerHTML=Object.keys(MISSIONS).map(function(k){
+          var m=MISSIONS[k], b=state.best[k]||0;
+          return '<button class="mcard" type="button" data-mission="'+k+'">'
+            +'<span class="icon">'+ICONS[k]+'</span>'
+            +'<h3>'+m.name+'</h3>'
+            +'<p class="skill">'+m.skill+'</p>'
+            +'<span class="meta"><span class="lvlchip">Level '+state.levels[k]+'</span>'
+            +'<span class="beststars">'+starStr(b)+'</span></span>'
+            +'</button>';
+        }).join("");
+        grid.querySelectorAll("[data-mission]").forEach(function(btn){
+          btn.addEventListener("click",function(){ startMission(btn.getAttribute("data-mission")); });
+        });
+
+        var hb=document.getElementById("history-box");
+        if(!state.history.length){
+          hb.innerHTML='<div class="empty">No missions logged yet. Pick your first mission above, '+esc(state.codename)+'.</div>';
+        }else{
+          hb.innerHTML="<ul>"+state.history.map(function(h){
+            return "<li><span>"+MISSIONS[h.key].name+"</span>"
+              +'<span class="beststars">'+starStr(h.stars)+"</span>"
+              +'<span class="when">'+h.score+' · Level '+h.level+"</span></li>";
+          }).join("")+"</ul>";
+        }
+      }
+
+      document.getElementById("codename").addEventListener("input",function(e){
+        state.codename=e.target.value.trim()||"Agent";
+        renderHome();
+      });
+      document.getElementById("soundbtn").addEventListener("click",function(){
+        state.sound=!state.sound;
+        this.setAttribute("aria-pressed",state.sound?"true":"false");
+        document.getElementById("soundlabel").textContent=state.sound?"Sound: On":"Sound: Off";
+        if(state.sound) sfx("tap");
+      });
+      document.getElementById("newday").addEventListener("click",function(){
+        state.dayCount=0; state.dayComplete=false; renderHome();
+      });
+      document.getElementById("backbtn").addEventListener("click",function(){
+        clearTimers(); state.current=null;
+        gameEl.classList.add("hidden"); homeEl.classList.remove("hidden");
+        renderHome(); window.scrollTo(0,0);
+      });
+
+      /* ================= game scaffolding ================= */
+      function showGame(key){
+        homeEl.classList.add("hidden"); gameEl.classList.remove("hidden");
+        document.getElementById("game-title").textContent=MISSIONS[key].name;
+        document.getElementById("game-level").textContent="Level "+state.levels[key];
+        window.scrollTo(0,0);
+      }
+      function setBody(html){ clearTimers(); bodyEl.innerHTML=html; }
+
+      function countBarHTML(){ return '<div class="countwrap"><div class="counttrack"><div class="countfill" id="countfill"></div></div><div class="countlabel" id="countlabel"></div></div>'; }
+      function startCount(seconds,onDone){
+        var fill=document.getElementById("countfill"), label=document.getElementById("countlabel");
+        var t0=Date.now();
+        var iv=setInterval(function(){
+          var left=seconds-(Date.now()-t0)/1000;
+          if(fill) fill.style.width=Math.max(0,left/seconds*100)+"%";
+          if(label) label.textContent=Math.max(0,Math.ceil(left))+"s";
+          if(left<=0){ clearInterval(iv); onDone(); }
+        },100);
+        track(iv);
+      }
+
+      function finishMission(key,pct,scoreText){
+        clearTimers();
+        var stars = pct>=0.99?3 : pct>=0.66?2 : pct>=0.4?1 : 0;
+        var lvlBefore=state.levels[key];
+        var lvlMsg="";
+        if(pct>=0.8){
+          state.fails[key]=0;
+          if(state.levels[key]<5){ state.levels[key]++; lvlMsg="Level up! Next time: Level "+state.levels[key]; }
+          else lvlMsg="You're at the top level — Master Spy territory.";
+        }else if(pct<0.45){
+          state.fails[key]++;
+          if(state.fails[key]>=2 && state.levels[key]>1){
+            state.levels[key]--; state.fails[key]=0;
+            lvlMsg="HQ stepped this mission back to Level "+state.levels[key]+" while you sharpen up. Smart agents regroup.";
+          }
+        }else{
+          state.fails[key]=0;
+        }
+        state.stars+=stars;
+        state.missionsDone++;
+        if(stars===3){ state.streak++; if(state.streak>state.bestStreak) state.bestStreak=state.streak; }
+        else state.streak=0;
+        if(!state.dayComplete){
+          state.dayCount++;
+          if(state.dayCount>=3) state.dayComplete=true;
+        }
+        if(!state.best[key]||stars>state.best[key]) state.best[key]=stars;
+        state.history.unshift({key:key,stars:stars,score:scoreText,level:lvlBefore});
+        if(state.history.length>8) state.history.pop();
+        if(stars===3) sfx("win"); else if(stars>0) sfx("good");
+
+        var m=MISSIONS[key];
+        var msg = stars===3 ? "Flawless work, "+esc(state.codename)+". HQ couldn't have done it better."
+          : stars===2 ? "Strong work, "+esc(state.codename)+". Almost everything recalled."
+          : stars===1 ? "Good effort, "+esc(state.codename)+". Every mission trains the muscle — even the tough ones."
+          : "Tough mission, "+esc(state.codename)+". Real agents miss things too — the skill is coming back and trying again.";
+        setBody(
+          '<span class="phase-tag result">Mission Debrief</span>'
+          +'<div class="resultstars">'+starStr(stars)+'</div>'
+          +'<p class="resultscore">'+esc(scoreText)+'</p>'
+          +'<p class="resultmsg">'+msg+'</p>'
+          +'<div class="tipbox"><span class="tk">Agent Debrief Tip</span>'+(stars>=2?m.tipGood:m.tipLow)+'</div>'
+          +(lvlMsg?'<p class="lvlup">'+esc(lvlMsg)+'</p>':"")
+          +'<div class="btnrow">'
+          +'<button class="btn" id="again" type="button">Play Again</button>'
+          +'<button class="btn ghost" id="tohq" type="button">Back to HQ</button>'
+          +'</div>'
+        );
+        document.getElementById("again").addEventListener("click",function(){ startMission(key); });
+        document.getElementById("tohq").addEventListener("click",function(){
+          clearTimers(); state.current=null;
+          gameEl.classList.add("hidden"); homeEl.classList.remove("hidden");
+          renderHome(); window.scrollTo(0,0);
+        });
+      }
+
+      function startMission(key){
+        state.current=key;
+        showGame(key);
+        STARTERS[key]();
+      }
+      var STARTERS={};
+
+      /* ================= MISSION 1: TRAY RECALL ================= */
+      var TRAY_ITEMS=[["🔑","Key"],["🧭","Compass"],["🔦","Flashlight"],["🍎","Apple"],["✂️","Scissors"],["🧲","Magnet"],["🎲","Dice"],["🔔","Bell"],["🧦","Sock"],["🍌","Banana"],["🚗","Toy Car"],["📎","Paperclip"],["🪙","Coin"],["🧸","Teddy Bear"],["🍓","Strawberry"],["🔋","Battery"],["✏️","Pencil"],["🧢","Cap"],["🍩","Donut"],["⏰","Clock"],["🎈","Balloon"],["🦆","Duck"],["🍕","Pizza"],["🧀","Cheese"],["🔨","Hammer"],["☂️","Umbrella"],["📷","Camera"],["🎧","Headphones"],["🍇","Grapes"],["🚀","Rocket"],["🍉","Watermelon"],["🥕","Carrot"],["🎁","Gift"],["🔍","Magnifier"],["🧤","Glove"],["🪁","Kite"]];
+      var TRAY_CFG={1:{n:5,t:20},2:{n:6,t:18},3:{n:7,t:15},4:{n:8,t:15},5:{n:10,t:12}};
+      function tileHTML(it){
+        return '<div class="tile"><span>'+it[0]+'</span><span class="tname">'+it[1]+'</span></div>';
+      }
+      STARTERS.tray=function(){
+        var cfg=TRAY_CFG[state.levels.tray];
+        var modes=shuffle(["missing","pick"]); modes.push(Math.random()<0.5?"missing":"pick");
+        var round=0, fracSum=0;
+        function nextRound(){
+          round++;
+          if(round>3){ finishMission("tray",fracSum/3,"All 3 tray rounds complete"); return; }
+          var items=drawUnique("tray",function(){
+            var drawn=sample(TRAY_ITEMS,cfg.n);
+            return {sig:drawn.map(function(x){ return x[1]; }).sort().join("|"), value:drawn};
+          });
+          var mode=modes[round-1];
+          setBody(
+            '<span class="phase-tag observe">Phase 1 · Observe</span>'
+            +'<h3>Memorize the tray</h3>'
+            +'<p class="inst">Round '+round+' of 3 · Study every item — the tray is about to be covered!</p>'
+            +countBarHTML()
+            +'<div class="tilegrid">'+items.map(tileHTML).join("")+'</div>'
+            +'<div class="btnrow"><button class="btn" id="hidebtn" type="button">Cover the tray — I\'m ready</button></div>'
+          );
+          document.getElementById("hidebtn").addEventListener("click",function(){ recall(items,mode); });
+          startCount(cfg.t,function(){ recall(items,mode); });
+        }
+        function recall(items,mode){
+          if(mode==="missing"){
+            var missing=pick(items);
+            var shown=items.filter(function(x){ return x!==missing; });
+            var others=TRAY_ITEMS.filter(function(x){ return items.indexOf(x)===-1; });
+            var opts=shuffle([missing].concat(sample(others,3)));
+            setBody(
+              '<span class="phase-tag recall">Phase 2 · Recall</span>'
+              +'<h3>One item is missing!</h3>'
+              +'<p class="inst">The tray is back — but something vanished. Which item is gone?</p>'
+              +'<div class="tilegrid">'+shown.map(tileHTML).join("")+'</div>'
+              +'<div class="opts two" style="margin-top:14px;">'
+              +opts.map(function(o,i){ return '<button class="opt" data-o="'+i+'" type="button"><span class="oemoji">'+o[0]+'</span>'+o[1]+'</button>'; }).join("")
+              +'</div><p class="feedback" id="fb"></p>'
+            );
+            bodyEl.querySelectorAll(".opt").forEach(function(b){
+              b.addEventListener("click",function(){
+                var o=opts[+b.getAttribute("data-o")];
+                bodyEl.querySelectorAll(".opt").forEach(function(x){ x.disabled=true; if(opts[+x.getAttribute("data-o")]===missing) x.classList.add("right"); });
+                var fb=document.getElementById("fb");
+                if(o===missing){ fracSum+=1; fb.textContent="Correct — it was the "+missing[1]+"!"; fb.className="feedback good"; sfx("good"); }
+                else { fb.textContent="It was the "+missing[1]+" that vanished."; fb.className="feedback bad"; sfx("bad"); }
+                later(nextRound,1700);
+              });
+            });
+          }else{
+            var decoys=sample(TRAY_ITEMS.filter(function(x){ return items.indexOf(x)===-1; }),3);
+            var opts2=shuffle(items.concat(decoys));
+            var selected=[];
+            setBody(
+              '<span class="phase-tag recall">Phase 2 · Recall</span>'
+              +'<h3>What was on the tray?</h3>'
+              +'<p class="inst">Tap exactly '+items.length+' items — the ones you saw on the tray. Watch out for decoys!</p>'
+              +'<div class="tilegrid">'
+              +opts2.map(function(o,i){ return '<button class="tile" data-o="'+i+'" type="button"><span>'+o[0]+'</span><span class="tname">'+o[1]+'</span></button>'; }).join("")
+              +'</div>'
+              +'<p class="selcount" id="selcount">Picked 0 of '+items.length+'</p>'
+              +'<p class="feedback" id="fb"></p>'
+              +'<div class="btnrow"><button class="btn teal" id="checkbtn" type="button" disabled>Check my picks</button></div>'
+            );
+            bodyEl.querySelectorAll(".tile").forEach(function(b){
+              b.addEventListener("click",function(){
+                var o=opts2[+b.getAttribute("data-o")];
+                var ix=selected.indexOf(o);
+                if(ix>=0){ selected.splice(ix,1); b.classList.remove("sel"); }
+                else if(selected.length<items.length){ selected.push(o); b.classList.add("sel"); sfx("tap"); }
+                document.getElementById("selcount").textContent="Picked "+selected.length+" of "+items.length;
+                document.getElementById("checkbtn").disabled = selected.length!==items.length;
+              });
+            });
+            document.getElementById("checkbtn").addEventListener("click",function(){
+              var hits=0,falsePicks=0;
+              bodyEl.querySelectorAll(".tile").forEach(function(b){
+                var o=opts2[+b.getAttribute("data-o")];
+                b.disabled=true; b.classList.remove("sel");
+                var onTray=items.indexOf(o)>=0, wasPicked=selected.indexOf(o)>=0;
+                if(onTray&&wasPicked){ b.classList.add("right"); hits++; }
+                else if(!onTray&&wasPicked){ b.classList.add("wrong"); falsePicks++; }
+                else if(onTray&&!wasPicked){ b.classList.add("missed"); }
+              });
+              var frac=Math.max(0,(hits-falsePicks)/items.length);
+              fracSum+=frac;
+              var fb=document.getElementById("fb");
+              if(falsePicks===0&&hits===items.length){ fb.textContent="Perfect recall — every single item!"; fb.className="feedback good"; sfx("good"); }
+              else { fb.textContent="You found "+hits+" of "+items.length+(falsePicks?(" · "+falsePicks+" decoy"+(falsePicks>1?"s":"")+" caught you"):"")+". Gold tiles were on the tray too."; fb.className="feedback "+(frac>=0.6?"good":"bad"); if(frac<0.6) sfx("bad"); else sfx("good"); }
+              document.getElementById("checkbtn").disabled=true;
+              later(nextRound,2400);
+            });
+          }
+        }
+        nextRound();
+      };
+
+      /* ================= MISSION 2: CODE SEQUENCE ================= */
+      var PADS=[
+        {label:"Red Circle",shape:"●",color:"#d64545",freq:392},
+        {label:"Blue Square",shape:"■",color:"#2f6fd0",freq:494},
+        {label:"Green Triangle",shape:"▲",color:"#2e9e5b",freq:587},
+        {label:"Gold Star",shape:"★",color:"#dd9a06",freq:740},
+        {label:"Purple Diamond",shape:"◆",color:"#7c4dbd",freq:880},
+        {label:"Pink Heart",shape:"♥",color:"#d14d8a",freq:988}
+      ];
+      STARTERS.code=function(){
+        var len=Math.min(7,state.levels.code+2);
+        var round=0, fracSum=0;
+        function padGrid(disabled){
+          return '<div class="padgrid">'+PADS.map(function(p,i){
+            return '<button class="pad" data-pad="'+i+'" type="button" style="background:'+p.color+'"'+(disabled?" disabled":"")+'><span class="pshape">'+p.shape+'</span>'+p.label+'</button>';
+          }).join("")+'</div>';
+        }
+        function dotsHTML(total,pos){
+          var s='<div class="seqdots" id="seqdots">';
+          for(var i=0;i<total;i++){ s+='<i class="'+(i<pos?"done":(i===pos?"cur":""))+'"></i>'; }
+          return s+'</div>';
+        }
+        function light(i){
+          var b=bodyEl.querySelector('[data-pad="'+i+'"]');
+          if(!b) return;
+          b.classList.add("lit"); tone(PADS[i].freq,0.25,0);
+          later(function(){ b.classList.remove("lit"); },430);
+        }
+        function nextRound(){
+          round++;
+          if(round>2){ finishMission("code",fracSum/2,"Both secret codes attempted"); return; }
+          var seq=drawUnique("code",function(){
+            var s=[]; for(var k=0;k<len;k++) s.push(Math.floor(Math.random()*PADS.length));
+            return {sig:s.join("-"), value:s};
+          });
+          setBody(
+            '<span class="phase-tag observe">Phase 1 · Observe</span>'
+            +'<h3>Watch the code flash…</h3>'
+            +'<p class="inst">Code '+round+' of 2 · '+len+' steps. Watch the pads light up and remember the order.</p>'
+            +padGrid(true)+dotsHTML(len,-1)
+          );
+          seq.forEach(function(p,idx){ later(function(){ light(p); },650*(idx+1)); });
+          later(function(){ playerTurn(seq); },650*(seq.length+1)+250);
+        }
+        function playerTurn(seq){
+          var pos=0, mistakes=0;
+          setBody(
+            '<span class="phase-tag recall">Phase 2 · Recall</span>'
+            +'<h3>Your turn — repeat the code</h3>'
+            +'<p class="inst">Tap the pads in the same order you saw them.</p>'
+            +padGrid(false)+dotsHTML(seq.length,0)
+            +'<p class="feedback" id="fb"></p>'
+          );
+          bodyEl.querySelectorAll(".pad").forEach(function(b){
+            b.addEventListener("click",function(){
+              var v=+b.getAttribute("data-pad");
+              if(v===seq[pos]){
+                light(v); pos++;
+                var d=document.getElementById("seqdots");
+                if(d) d.outerHTML=dotsHTML(seq.length,pos>=seq.length?seq.length:pos);
+                if(pos>=seq.length){
+                  bodyEl.querySelectorAll(".pad").forEach(function(x){ x.disabled=true; });
+                  var frac=Math.max(0,(seq.length-mistakes)/seq.length);
+                  fracSum+=frac;
+                  var fb=document.getElementById("fb");
+                  if(mistakes===0){ fb.textContent="Code cracked perfectly!"; fb.className="feedback good"; sfx("win"); }
+                  else { fb.textContent="Code cracked — with "+mistakes+" wrong tap"+(mistakes>1?"s":"")+" along the way."; fb.className="feedback good"; sfx("good"); }
+                  later(nextRound,1700);
+                }
+              }else{
+                mistakes++; sfx("bad");
+                b.classList.add("bad");
+                later(function(){ b.classList.remove("bad"); },350);
+                var fb2=document.getElementById("fb");
+                fb2.textContent="Not that pad — think back to the flash order."; fb2.className="feedback bad";
+              }
+            });
+          });
+        }
+        nextRound();
+      };
+      /* ================= shared question runner ================= */
+      function runQuestions(key,questions,doneText){
+        var qi=0, correct=0;
+        function next(){
+          if(qi>=questions.length){
+            finishMission(key,correct/questions.length,correct+" of "+questions.length+" questions right");
+            return;
+          }
+          var q=questions[qi];
+          setBody(
+            '<span class="phase-tag recall">Phase 2 · Recall</span>'
+            +'<h3>'+esc(q.q)+'</h3>'
+            +'<p class="inst">Question '+(qi+1)+' of '+questions.length+' · Answer from memory — no peeking back!</p>'
+            +'<div class="opts">'+q.opts.map(function(o,i){ return '<button class="opt" data-o="'+i+'" type="button">'+o.t+'</button>'; }).join("")+'</div>'
+            +'<p class="feedback" id="fb"></p>'
+          );
+          bodyEl.querySelectorAll(".opt").forEach(function(b){
+            b.addEventListener("click",function(){
+              var o=q.opts[+b.getAttribute("data-o")];
+              bodyEl.querySelectorAll(".opt").forEach(function(x){
+                x.disabled=true;
+                if(q.opts[+x.getAttribute("data-o")].c) x.classList.add("right");
+              });
+              var fb=document.getElementById("fb");
+              if(o.c){ correct++; b.classList.add("right"); fb.textContent="Correct!"; fb.className="feedback good"; sfx("good"); }
+              else { b.classList.add("wrong"); fb.textContent="Not quite — the right answer is glowing green."; fb.className="feedback bad"; sfx("bad"); }
+              qi++; later(next,1600);
+            });
+          });
+        }
+        next();
+      }
+      function mcq(q,correctText,distractors){
+        var opts=shuffle([{t:correctText,c:true}].concat(distractors.map(function(d){ return {t:d,c:false}; })));
+        return {q:q,opts:opts};
+      }
+
+      /* ================= MISSION 3: AGENT ID ================= */
+      var AG_NAMES=["Nova","Felix","Ivy","Marco","Zoe","Omar","Luna","Kai","Ruby","Ezra","Milo","Priya","Hugo","Tara"];
+      var AG_CODENAMES=["Night Owl","Red Fox","Silent Wave","Grey Wolf","Quick Comet","Blue Falcon","Paper Tiger","Iron Badger","Swift Lynx","Moon Moth"];
+      var AG_ANIMALS=[["🦊","Fox"],["🦉","Owl"],["🐢","Sea Turtle"],["🦁","Lion"],["🐬","Dolphin"],["🦅","Eagle"],["🐙","Octopus"],["🦩","Flamingo"],["🐧","Penguin"],["🐼","Panda"],["🦎","Gecko"],["🦜","Parrot"]];
+      var AG_BADGES=[
+        {color:"Red",hex:"#d64545",shape:"★",shapeName:"Star"},
+        {color:"Blue",hex:"#2f6fd0",shape:"●",shapeName:"Circle"},
+        {color:"Green",hex:"#2e9e5b",shape:"▲",shapeName:"Triangle"},
+        {color:"Gold",hex:"#dd9a06",shape:"◆",shapeName:"Diamond"},
+        {color:"Purple",hex:"#7c4dbd",shape:"■",shapeName:"Square"}
+      ];
+      var AG_SNACKS=[["🍪","Cookies"],["🍕","Pizza"],["🍇","Grapes"],["🥨","Pretzels"],["🍓","Strawberries"],["🧀","Cheese"],["🍩","Donuts"],["🥕","Carrot Sticks"],["🍉","Watermelon"],["🥜","Trail Mix"]];
+      var AG_GADGETS=[["⌚","Spy Watch"],["🕶️","X-Ray Shades"],["🎒","Jetpack Bag"],["📷","Mini Camera"],["🧲","Magnet Gloves"],["🔦","Glow Torch"],["🎧","Super Ears"],["🪃","Return Boomerang"]];
+      STARTERS.agent=function(){
+        var lvl=state.levels.agent;
+        var card=drawUnique("agent",function(){
+          var n=pick(AG_NAMES), cn=pick(AG_CODENAMES), an=pick(AG_ANIMALS),
+              bg=pick(AG_BADGES), sn=pick(AG_SNACKS), gd=pick(AG_GADGETS);
+          var num=10+Math.floor(Math.random()*89);
+          return {sig:[n,cn,an[1],bg.color+" "+bg.shapeName,num,sn[1],gd[1]].join("|"),
+                  value:{name:n,codename:cn,animal:an,badge:bg,snack:sn,gadget:gd,number:num}};
+        });
+        var name=card.name, codename=card.codename, animal=card.animal,
+            badge=card.badge, snack=card.snack, gadget=card.gadget;
+        var number=card.number;
+        var viewSecs=Math.max(10,22-lvl*2);
+        var badgeLabel=badge.color+" "+badge.shapeName;
+        setBody(
+          '<span class="phase-tag observe">Phase 1 · Observe</span>'
+          +'<h3>Study this agent\'s ID card</h3>'
+          +'<p class="inst">Memorize everything on the card. When it\'s gone, HQ will quiz you.</p>'
+          +countBarHTML()
+          +'<div class="idcard"><div class="idhead"><span>AGENT ID CARD</span><span>★ HQ ★</span></div><div class="idbody">'
+          +'<div class="idrow"><span class="k">Agent</span><span class="val">'+name+' · “'+codename+'”</span></div>'
+          +'<div class="idrow"><span class="k">Partner Animal</span><span class="val"><span class="big">'+animal[0]+'</span> '+animal[1]+'</span></div>'
+          +'<div class="idrow"><span class="k">Badge</span><span class="val"><span class="badgeswatch"><span class="sw" style="background:'+badge.hex+'"></span>'+badgeLabel+' '+badge.shape+'</span></span></div>'
+          +'<div class="idrow"><span class="k">Secret Number</span><span class="val"><span class="big">'+number+'</span></span></div>'
+          +'<div class="idrow"><span class="k">Favorite Snack</span><span class="val">'+snack[0]+' '+snack[1]+'</span></div>'
+          +'<div class="idrow"><span class="k">Gadget</span><span class="val">'+gadget[0]+' '+gadget[1]+'</span></div>'
+          +'</div></div>'
+          +'<div class="btnrow"><button class="btn" id="readybtn" type="button">Card memorized — quiz me</button></div>'
+        );
+        function quiz(){
+          var numOpts=[number];
+          while(numOpts.length<4){ var n2=10+Math.floor(Math.random()*89); if(numOpts.indexOf(n2)===-1) numOpts.push(n2); }
+          var allQ=[
+            mcq("What is the agent's codename?",codename,sample(AG_CODENAMES.filter(function(c){ return c!==codename; }),3)),
+            mcq("Which animal is the agent's partner?",animal[0]+" "+animal[1],sample(AG_ANIMALS.filter(function(a){ return a!==animal; }),3).map(function(a){ return a[0]+" "+a[1]; })),
+            mcq("What does the agent's badge look like?",badgeLabel+" "+badge.shape,sample(AG_BADGES.filter(function(b){ return b!==badge; }),3).map(function(b){ return b.color+" "+b.shapeName+" "+b.shape; })),
+            mcq("What is the agent's secret number?",String(number),numOpts.filter(function(n){ return n!==number; }).map(String)),
+            mcq("What is the agent's favorite snack?",snack[0]+" "+snack[1],sample(AG_SNACKS.filter(function(s){ return s!==snack; }),3).map(function(s){ return s[0]+" "+s[1]; })),
+            mcq("Which gadget does the agent carry?",gadget[0]+" "+gadget[1],sample(AG_GADGETS.filter(function(g){ return g!==gadget; }),3).map(function(g){ return g[0]+" "+g[1]; }))
+          ];
+          runQuestions("agent",sample(allQ,3),"ID card quiz complete");
+        }
+        document.getElementById("readybtn").addEventListener("click",quiz);
+        startCount(viewSecs,quiz);
+      };
+
+      /* ================= MISSION 4: WHAT'S CHANGED? ================= */
+      var SCENE_ITEMS=[["🛋️","Sofa"],["🪴","Plant"],["🖼️","Picture"],["⏰","Clock"],["📚","Books"],["🪑","Chair"],["🧸","Teddy"],["🍎","Apple"],["🔑","Key"],["🎸","Guitar"],["🐈","Cat"],["🕯️","Candle"],["📺","TV"],["🍩","Donut"],["🧀","Cheese"],["🎈","Balloon"],["🪟","Window"],["💡","Lamp"],["🧺","Basket"],["🎩","Hat"],["📦","Box"],["🪞","Mirror"],["🧹","Broom"],["🍰","Cake"]];
+      STARTERS.change=function(){
+        var lvl=state.levels.change;
+        var nChanges = lvl<=2?1 : lvl<=4?2 : 3;
+        var viewSecs=Math.max(9,17-lvl*2);
+        var scene=drawUnique("change",function(){
+          var c=[]; for(var i2=0;i2<9;i2++) c.push(null);
+          var pos=shuffle([0,1,2,3,4,5,6,7,8]);
+          var its=sample(SCENE_ITEMS,7);
+          for(var f=0;f<7;f++) c[pos[f]]=its[f];
+          var ch=sample(pos.slice(0,7),nChanges);
+          var af=c.slice();
+          ch.forEach(function(ix){
+            var repl=pick(SCENE_ITEMS.filter(function(x){ return c.indexOf(x)===-1 && af.indexOf(x)===-1; }));
+            af[ix]=repl;
+          });
+          var sig=c.map(function(x){ return x?x[1]:"-"; }).join("|")+"::"+ch.slice().sort().join(",")+"::"+af.map(function(x){ return x?x[1]:"-"; }).join("|");
+          return {sig:sig, value:{cells:c,changedIdx:ch,after:af}};
+        });
+        var cells=scene.cells, changedIdx=scene.changedIdx, after=scene.after;
+        function cellHTML(c,btn,ix){
+          var inner=c?('<span>'+c[0]+'</span><span class="cname">'+c[1]+'</span>'):'<span style="font-size:20px;color:var(--ink-soft)">·</span>';
+          if(btn) return '<button class="cell" data-c="'+ix+'" type="button">'+inner+'</button>';
+          return '<div class="cell">'+inner+'</div>';
+        }
+        setBody(
+          '<span class="phase-tag observe">Phase 1 · Observe</span>'
+          +'<h3>Study the hideout room</h3>'
+          +'<p class="inst">Remember what\'s in every square. The lights are about to go out… and something will change.</p>'
+          +countBarHTML()
+          +'<div class="scenegrid">'+cells.map(function(c,ix){ return cellHTML(c,false,ix); }).join("")+'</div>'
+          +'<div class="btnrow"><button class="btn" id="lightsbtn" type="button">Lights out — I\'m ready</button></div>'
+        );
+        function goDark(){
+          setBody(
+            '<span class="phase-tag recall">Phase 2 · Something Changed</span>'
+            +'<div class="darkout">🌙<div class="dtext">The lights went out… someone slipped in and changed the room!</div></div>'
+          );
+          later(showAfter,1600);
+        }
+        function showAfter(){
+          var marked=[];
+          setBody(
+            '<span class="phase-tag recall">Phase 2 · Recall</span>'
+            +'<h3>Tap what changed</h3>'
+            +'<p class="inst">The room is back. '+(nChanges===1?"Exactly 1 square is different.":("Exactly "+nChanges+" squares are different."))+' Tap the squares that changed, then report to HQ.</p>'
+            +'<div class="scenegrid">'+after.map(function(c,ix){ return cellHTML(c,true,ix); }).join("")+'</div>'
+            +'<p class="selcount" id="selcount">Marked 0 of '+nChanges+'</p>'
+            +'<p class="feedback" id="fb"></p>'
+            +'<div class="btnrow"><button class="btn teal" id="reportbtn" type="button" disabled>Report to HQ</button></div>'
+          );
+          bodyEl.querySelectorAll(".cell").forEach(function(b){
+            b.addEventListener("click",function(){
+              var ix=+b.getAttribute("data-c");
+              var p=marked.indexOf(ix);
+              if(p>=0){ marked.splice(p,1); b.classList.remove("marked"); }
+              else if(marked.length<nChanges){ marked.push(ix); b.classList.add("marked"); sfx("tap"); }
+              document.getElementById("selcount").textContent="Marked "+marked.length+" of "+nChanges;
+              document.getElementById("reportbtn").disabled = marked.length!==nChanges;
+            });
+          });
+          document.getElementById("reportbtn").addEventListener("click",function(){
+            var hits=0,falseMarks=0;
+            bodyEl.querySelectorAll(".cell").forEach(function(b){
+              var ix=+b.getAttribute("data-c");
+              b.disabled=true; b.classList.remove("marked");
+              var wasChanged=changedIdx.indexOf(ix)>=0, wasMarked=marked.indexOf(ix)>=0;
+              if(wasChanged&&wasMarked){ b.classList.add("right"); hits++; }
+              else if(!wasChanged&&wasMarked){ b.classList.add("marked"); falseMarks++; }
+              else if(wasChanged&&!wasMarked){ b.classList.add("missed"); }
+            });
+            var frac=Math.max(0,(hits-falseMarks)/nChanges);
+            var fb=document.getElementById("fb");
+            if(hits===nChanges&&falseMarks===0){ fb.textContent="You spotted every change. Nothing gets past you!"; fb.className="feedback good"; sfx("good"); }
+            else { fb.textContent="You caught "+hits+" of "+nChanges+". Gold squares changed too — check corners and edges next time."; fb.className="feedback "+(frac>=0.5?"good":"bad"); if(frac<0.5) sfx("bad"); else sfx("good"); }
+            this.disabled=true;
+            later(function(){ finishMission("change",frac,"Change report filed"); },2600);
+          });
+        }
+        document.getElementById("lightsbtn").addEventListener("click",goDark);
+        startCount(viewSecs,goDark);
+      };
+      /* ================= MISSION 5: ROUTE RECALL ================= */
+      var STOPS=[["📚","Library"],["🌳","Park"],["🌉","Bridge"],["🗼","Tower"],["🏛️","Museum"],["🥐","Bakery"],["🏖️","Beach"],["🚂","Station"],["🎡","Fairground"],["🏰","Castle"],["⛲","Fountain"],["🎪","Circus"],["🦁","Zoo"],["🎬","Cinema"],["🏟️","Stadium"],["🐠","Aquarium"],["🚀","Space Center"],["🌻","Farm"]];
+      STARTERS.route=function(){
+        var count=Math.min(7,state.levels.route+2);
+        var round=0, fracSum=0;
+        function cellHTML(c,btn,ix,num){
+          var inner=c?('<span>'+c[0]+'</span><span class="cname">'+c[1]+'</span>'):'<span style="font-size:20px;color:var(--ink-soft)">·</span>';
+          var badge=(num!=null)?'<span class="stopnum">'+num+'</span>':"";
+          if(btn) return '<button class="cell" data-c="'+ix+'" type="button">'+badge+inner+'</button>';
+          return '<div class="cell" data-c="'+ix+'">'+badge+inner+'</div>';
+        }
+        function nextRound(){
+          round++;
+          if(round>2){ finishMission("route",fracSum/2,"Both routes retraced"); return; }
+          var routeDraw=drawUnique("route",function(){
+            var st=sample(STOPS,count);
+            var ca=[]; for(var j=0;j<9;j++) ca.push(null);
+            var ps=shuffle([0,1,2,3,4,5,6,7,8]).slice(0,count);
+            ps.forEach(function(p2,ix2){ ca[p2]=st[ix2]; });
+            return {sig:ps.join(",")+"::"+st.map(function(x){ return x[1]; }).join("|"), value:{stops:st,cellsArr:ca,positions:ps}};
+          });
+          var stops=routeDraw.stops;
+          var cellsArr=routeDraw.cellsArr;
+          var positions=routeDraw.positions;
+          /* positions[k] is the cell of the k-th stop */
+          setBody(
+            '<span class="phase-tag observe">Phase 1 · Observe</span>'
+            +'<h3>Watch the route light up</h3>'
+            +'<p class="inst">Route '+round+' of 2 · The agent visits '+count+' stops. Remember the order they light up in!</p>'
+            +'<div class="scenegrid">'+cellsArr.map(function(c,ix){ return cellHTML(c,false,ix,null); }).join("")+'</div>'
+            +'<p class="feedback" id="routefb">Watch carefully…</p>'
+          );
+          positions.forEach(function(p,order){
+            later(function(){
+              var cell=bodyEl.querySelector('.cell[data-c="'+p+'"]');
+              if(cell){ cell.classList.add("lit"); cell.insertAdjacentHTML("afterbegin",'<span class="stopnum">'+(order+1)+'</span>'); }
+              sfx("tap");
+            },800*(order+1));
+          });
+          later(function(){
+            var fb=document.getElementById("routefb");
+            if(fb) fb.textContent="That's the whole route. Ready to retrace it?";
+            var row=document.createElement("div");
+            row.className="btnrow";
+            row.innerHTML='<button class="btn" id="retracebtn" type="button">Retrace the route</button>';
+            bodyEl.appendChild(row);
+            document.getElementById("retracebtn").addEventListener("click",function(){ playerTurn(cellsArr,positions); });
+          },800*(count+1)+200);
+        }
+        function playerTurn(cellsArr,positions){
+          var step=0, mistakes=0;
+          setBody(
+            '<span class="phase-tag recall">Phase 2 · Recall</span>'
+            +'<h3>Retrace the route</h3>'
+            +'<p class="inst">Tap the stops in the exact order the agent visited them. Stop 1 first!</p>'
+            +'<div class="scenegrid">'+cellsArr.map(function(c,ix){ return cellHTML(c,true,ix,null); }).join("")+'</div>'
+            +'<p class="feedback" id="routefb">Find stop 1…</p>'
+          );
+          bodyEl.querySelectorAll(".cell").forEach(function(b){
+            b.addEventListener("click",function(){
+              var ix=+b.getAttribute("data-c");
+              var fb=document.getElementById("routefb");
+              if(ix===positions[step]){
+                b.classList.add("done-stop");
+                b.insertAdjacentHTML("afterbegin",'<span class="stopnum">'+(step+1)+'</span>');
+                b.disabled=true; sfx("tap"); step++;
+                if(step>=positions.length){
+                  bodyEl.querySelectorAll(".cell").forEach(function(x){ x.disabled=true; });
+                  var frac=Math.max(0,(positions.length-mistakes)/positions.length);
+                  fracSum+=frac;
+                  if(mistakes===0){ fb.textContent="Route retraced perfectly!"; fb.className="feedback good"; sfx("win"); }
+                  else { fb.textContent="Route complete — "+mistakes+" wrong turn"+(mistakes>1?"s":"")+" along the way."; fb.className="feedback good"; sfx("good"); }
+                  later(nextRound,1800);
+                }else{
+                  fb.textContent="That's stop "+step+". Now find stop "+(step+1)+"…"; fb.className="feedback";
+                }
+              }else{
+                mistakes++; sfx("bad");
+                fb.textContent="Wrong turn! That wasn't stop "+(step+1)+". Think about the story of the trip."; fb.className="feedback bad";
+                b.classList.add("marked");
+                later(function(){ b.classList.remove("marked"); },400);
+              }
+            });
+          });
+        }
+        nextRound();
+      };
+
+      /* ================= MISSION 6: MISSION BRIEF ================= */
+      var BR_AGENTS=["Nova","Felix","Ivy","Marco","Zoe","Omar","Luna","Kai","Ruby","Ezra"];
+      var BR_CODENAMES=["Night Owl","Red Fox","Grey Wolf","Blue Falcon","Quick Comet","Silent Wave","Paper Tiger","Iron Badger"];
+      var BR_PLACES=["the lighthouse","the old library","the train station","the city museum","the bakery on Pine Street","the park fountain","the clock tower","the botanical garden","the old windmill","the market square","the science lab","the art gallery"];
+      var BR_OBJECTS=["a silver key","a tiny folded map","a blue envelope","a golden coin","a secret notebook","a red umbrella","a brass telescope","a striped scarf","a tiny glass vial","a wooden puzzle box","a silver whistle","a folded kite"];
+      var BR_CODES=["OTTER","FALCON","MANGO","CIPHER","WILLOW","ROCKET","EMBER","HARBOR","VELVET","TUNDRA","ORBIT","ZEPHYR","LANTERN","QUARTZ"];
+      var BR_FIRST=["Feed the cat waiting by the gate","Knock three times on the green door","Wait until the big clock chimes","Leave a chalk star on the front step","Count all the windows twice","Wave to the gardener two times","Tie a blue ribbon to the gate","Tap the mailbox three times","Hum the secret tune at the corner","Check the signpost points north"];
+      STARTERS.brief=function(){
+        var lvl=state.levels.brief;
+        var briefDraw=drawUnique("brief",function(){
+          var n=pick(BR_AGENTS), cn=pick(BR_CODENAMES), pl=pick(BR_PLACES),
+              ob=pick(BR_OBJECTS), cd=pick(BR_CODES), fi=pick(BR_FIRST);
+          return {sig:[n,cn,pl,ob,cd,fi].join("|"), value:{name:n,codename:cn,place:pl,obj:ob,code:cd,first:fi}};
+        });
+        var name=briefDraw.name, codename=briefDraw.codename, place=briefDraw.place,
+            obj=briefDraw.obj, code=briefDraw.code, first=briefDraw.first;
+        var viewSecs=Math.max(11,19-lvl*2);
+        var briefText="Agent "+name+" (“"+codename+"”) must go to "+place+". "
+          +"First: "+first.charAt(0).toLowerCase()+first.slice(1)+". "
+          +"Then, pick up "+obj+" and keep it safe. "
+          +"If anyone asks, the code word is "+code+".";
+        setBody(
+          '<span class="phase-tag observe">Phase 1 · Observe</span>'
+          +'<h3>Read the mission brief</h3>'
+          +'<p class="inst">Read it twice. When it disappears, HQ will ask you to report back.</p>'
+          +countBarHTML()
+          +'<div class="briefbox"><div class="bhead">⚠ Top Secret · Eyes Only ⚠</div>'+esc(briefText)+'</div>'
+          +'<div class="btnrow"><button class="btn" id="briefbtn" type="button">Brief memorized — report to HQ</button></div>'
+        );
+        function quiz(){
+          var allQ=[
+            mcq("Who is the agent on this mission?",name+" (“"+codename+"”)",sample(BR_AGENTS.filter(function(a){ return a!==name; }),3).map(function(a){ return a+" (“"+pick(BR_CODENAMES.filter(function(c){ return c!==codename; }))+"”)"; })),
+            mcq("Where must the agent go?","The "+place.replace(/^the /,""),sample(BR_PLACES.filter(function(p){ return p!==place; }),3).map(function(p){ return "The "+p.replace(/^the /,""); })),
+            mcq("What is the code word?",code,sample(BR_CODES.filter(function(c){ return c!==code; }),3)),
+            mcq("What happens FIRST in the mission?",first,sample(BR_FIRST.filter(function(f){ return f!==first; }),3)),
+            mcq("What must the agent pick up?","Pick up "+obj,sample(BR_OBJECTS.filter(function(o){ return o!==obj; }),3).map(function(o){ return "Pick up "+o; }))
+          ];
+          runQuestions("brief",sample(allQ,3),"Brief reported to HQ");
+        }
+        document.getElementById("briefbtn").addEventListener("click",quiz);
+        startCount(viewSecs,quiz);
+      };
+
+      /* ================= init ================= */
+      renderHome();
+</script>
+</body>
+</html>
