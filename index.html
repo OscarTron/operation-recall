@@ -144,6 +144,15 @@
         background:var(--panel2); border:1.5px dashed var(--line); border-radius:12px;
         padding:16px; text-align:center; color:var(--ink-soft); font-weight:700;
       }
+      .history li{flex-wrap:wrap;}
+      .history li .logdate{font-family:"Space Mono",monospace; font-size:12.5px; font-weight:700; color:var(--teal); white-space:nowrap;}
+      .logactions{margin-top:12px; display:flex; justify-content:flex-end;}
+      .logconfirm{
+        margin-top:12px; background:var(--red-soft); border:1.5px solid var(--red);
+        border-radius:12px; padding:14px 16px;
+      }
+      .logconfirm p{margin:0; font-weight:800; font-size:15px;}
+      .logconfirm .btnrow{margin-top:12px;}
       .foot-note{margin-top:30px; text-align:center; color:var(--ink-soft); font-size:13.5px; font-weight:700;}
 
       /* ---------- Buttons ---------- */
@@ -379,7 +388,7 @@
         <div class="mission-grid" id="mission-grid"></div>
 
         <section class="history" aria-label="Recent missions">
-          <div class="section-head"><h2>Mission Log</h2></div>
+          <div class="section-head"><h2>Mission Log</h2><span class="note">Your last 20 missions, saved on this device.</span></div>
           <div id="history-box"></div>
         </section>
 
@@ -435,11 +444,11 @@
         else if(kind==="win"){ tone(523,0.12,0); tone(659,0.12,0.11); tone(784,0.2,0.22); }
       }
 
-      /* ================= state (this session only) ================= */
+      /* ================= state (progress saved on this device) ================= */
       var state={
         codename:"Agent Nova",
         stars:0, missionsDone:0, streak:0, bestStreak:0,
-        dayCount:0, dayComplete:false,
+        dayCount:0, dayComplete:false, dayKey:"",
         levels:{tray:1,code:1,agent:1,change:1,route:1,brief:1},
         fails:{tray:0,code:0,agent:0,change:0,route:0,brief:0},
         best:{},
@@ -448,6 +457,66 @@
         sound:false,
         current:null
       };
+
+      /* ---- persistence: progress + mission log saved in this browser only ---- */
+      var STORE_KEY="operation-recall-progress-v1";
+      var LOG_LIMIT=20;
+      var clearConfirm=false;
+      var MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      function todayKey(){ var d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+      function fmtDate(d){ return MONTHS[d.getMonth()]+" "+d.getDate(); }
+      function saveState(){
+        try{
+          localStorage.setItem(STORE_KEY,JSON.stringify({
+            codename:state.codename, stars:state.stars, missionsDone:state.missionsDone,
+            streak:state.streak, bestStreak:state.bestStreak,
+            dayCount:state.dayCount, dayComplete:state.dayComplete, dayKey:state.dayKey,
+            levels:state.levels, best:state.best, history:state.history.slice(0,LOG_LIMIT)
+          }));
+        }catch(e){}
+      }
+      function loadState(){
+        var raw=null;
+        try{ raw=localStorage.getItem(STORE_KEY); }catch(e){}
+        if(!raw) return;
+        var s=null;
+        try{ s=JSON.parse(raw); }catch(e){ return; }
+        if(!s||typeof s!=="object") return;
+        function num(v,fallback){ v=+v; return isFinite(v)&&v>=0?Math.floor(v):fallback; }
+        if(typeof s.codename==="string"&&s.codename.trim()) state.codename=s.codename.slice(0,18);
+        state.stars=num(s.stars,0); state.missionsDone=num(s.missionsDone,0);
+        state.streak=num(s.streak,0); state.bestStreak=num(s.bestStreak,0);
+        if(s.levels&&typeof s.levels==="object"){
+          Object.keys(state.levels).forEach(function(k){
+            var v=+s.levels[k]; if(isFinite(v)) state.levels[k]=Math.min(5,Math.max(1,Math.floor(v)));
+          });
+        }
+        if(s.best&&typeof s.best==="object"){
+          Object.keys(s.best).forEach(function(k){
+            if(MISSIONS[k]){ var v=+s.best[k]; if(isFinite(v)) state.best[k]=Math.min(3,Math.max(0,Math.floor(v))); }
+          });
+        }
+        if(Object.prototype.toString.call(s.history)==="[object Array]"){
+          state.history=s.history.filter(function(h){
+            return h&&MISSIONS[h.key]&&typeof h.score==="string";
+          }).slice(0,LOG_LIMIT).map(function(h){
+            return { key:h.key,
+                     stars:Math.min(3,Math.max(0,+h.stars||0)),
+                     score:h.score,
+                     level:Math.min(5,Math.max(1,+h.level||1)),
+                     date:(typeof h.date==="string"?h.date:"") };
+          });
+        }
+        /* training-day progress only counts if it was earned today */
+        if(s.dayKey===todayKey()){
+          state.dayCount=Math.min(3,num(s.dayCount,0));
+          state.dayComplete=!!s.dayComplete&&state.dayCount>=3;
+          state.dayKey=s.dayKey;
+        }else{
+          state.dayKey=todayKey();
+        }
+      }
+
       var RANKS=[
         {name:"Cadet",need:0},
         {name:"Field Agent",need:6},
@@ -552,18 +621,40 @@
 
         var hb=document.getElementById("history-box");
         if(!state.history.length){
+          clearConfirm=false;
           hb.innerHTML='<div class="empty">No missions logged yet. Pick your first mission above, '+esc(state.codename)+'.</div>';
         }else{
-          hb.innerHTML="<ul>"+state.history.map(function(h){
+          var logHTML="<ul>"+state.history.map(function(h){
             return "<li><span>"+MISSIONS[h.key].name+"</span>"
               +'<span class="beststars">'+starStr(h.stars)+"</span>"
-              +'<span class="when">'+h.score+' · Level '+h.level+"</span></li>";
+              +(h.date?'<span class="logdate">'+esc(h.date)+"</span>":"")
+              +'<span class="when">'+esc(h.score)+' · Level '+h.level+"</span></li>";
           }).join("")+"</ul>";
+          if(clearConfirm){
+            logHTML+='<div class="logconfirm" role="alert">'
+              +'<p>Clear the whole mission log? The saved entries on this device will be removed. Your stars, rank, and levels stay.</p>'
+              +'<div class="btnrow">'
+              +'<button class="btn" id="clear-confirm" type="button">Yes, clear the log</button>'
+              +'<button class="btn ghost" id="clear-cancel" type="button">Keep my log</button>'
+              +'</div></div>';
+          }else{
+            logHTML+='<div class="logactions"><button class="btn ghost" id="clear-log" type="button" style="min-height:48px; padding:10px 18px;">Clear mission log</button></div>';
+          }
+          hb.innerHTML=logHTML;
+          var clearBtn=document.getElementById("clear-log");
+          if(clearBtn) clearBtn.addEventListener("click",function(){ clearConfirm=true; renderHome(); });
+          var confirmBtn=document.getElementById("clear-confirm");
+          if(confirmBtn) confirmBtn.addEventListener("click",function(){
+            state.history=[]; clearConfirm=false; saveState(); renderHome();
+          });
+          var cancelBtn=document.getElementById("clear-cancel");
+          if(cancelBtn) cancelBtn.addEventListener("click",function(){ clearConfirm=false; renderHome(); });
         }
       }
 
       document.getElementById("codename").addEventListener("input",function(e){
         state.codename=e.target.value.trim()||"Agent";
+        saveState();
         renderHome();
       });
       document.getElementById("soundbtn").addEventListener("click",function(){
@@ -573,7 +664,7 @@
         if(state.sound) sfx("tap");
       });
       document.getElementById("newday").addEventListener("click",function(){
-        state.dayCount=0; state.dayComplete=false; renderHome();
+        state.dayCount=0; state.dayComplete=false; state.dayKey=todayKey(); saveState(); renderHome();
       });
       document.getElementById("backbtn").addEventListener("click",function(){
         clearTimers(); state.current=null;
@@ -625,13 +716,15 @@
         state.missionsDone++;
         if(stars===3){ state.streak++; if(state.streak>state.bestStreak) state.bestStreak=state.streak; }
         else state.streak=0;
+        if(state.dayKey!==todayKey()){ state.dayKey=todayKey(); state.dayCount=0; state.dayComplete=false; }
         if(!state.dayComplete){
           state.dayCount++;
           if(state.dayCount>=3) state.dayComplete=true;
         }
         if(!state.best[key]||stars>state.best[key]) state.best[key]=stars;
-        state.history.unshift({key:key,stars:stars,score:scoreText,level:lvlBefore});
-        if(state.history.length>8) state.history.pop();
+        state.history.unshift({key:key,stars:stars,score:scoreText,level:lvlBefore,date:fmtDate(new Date())});
+        if(state.history.length>LOG_LIMIT) state.history.length=LOG_LIMIT;
+        saveState();
         if(stars===3) sfx("win"); else if(stars>0) sfx("good");
 
         var m=MISSIONS[key];
@@ -1160,6 +1253,8 @@
       };
 
       /* ================= init ================= */
+      loadState();
+      document.getElementById("codename").value=state.codename;
       renderHome();
 </script>
 </body>
