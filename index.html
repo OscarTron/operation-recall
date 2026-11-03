@@ -13,7 +13,7 @@
       :root{
         --bg:#edf0f4; --panel:#ffffff; --panel2:#f4f7fa; --ink:#17263f; --ink-soft:#4c5d75;
         --line:#d3dbe6; --accent:#e8930c; --accent-dark:#b96f04; --accent-soft:#fdf0da;
-        --teal:#0e7c7b; --teal-soft:#e0f2f1; --red:#d64545; --red-soft:#fbe7e7;
+        --teal:#0e7c7b; --teal-dark:#0a5c5b; --teal-soft:#e0f2f1; --red:#d64545; --red-soft:#fbe7e7;
         --green:#2e9e5b; --green-soft:#e4f4ea; --gold:#f0ad12; --stamp:#c93a3a;
         --shadow:0 2px 10px rgba(23,38,63,.08), 0 10px 28px rgba(23,38,63,.07);
         --radius:16px;
@@ -21,8 +21,8 @@
       @media (prefers-color-scheme: dark){
         :root{
           --bg:#0a1120; --panel:#141f36; --panel2:#1a2947; --ink:#eef2f9; --ink-soft:#a7b4c9;
-          --line:#2b3c5c; --accent:#f5a623; --accent-dark:#f5a623; --accent-soft:#3a2c10;
-          --teal:#3ec6c4; --teal-soft:#123a3d; --red:#ff7a72; --red-soft:#3d1d1d;
+          --line:#2b3c5c; --accent:#f5a623; --accent-dark:#cf8507; --accent-soft:#3a2c10;
+          --teal:#3ec6c4; --teal-dark:#146664; --teal-soft:#123a3d; --red:#ff7a72; --red-soft:#3d1d1d;
           --green:#5fce8a; --green-soft:#173626; --gold:#ffc93c; --stamp:#ff8a80;
           --shadow:0 2px 10px rgba(0,0,0,.35), 0 10px 28px rgba(0,0,0,.3);
         }
@@ -52,11 +52,37 @@
       .titleblock h1 .rec{color:var(--accent-dark);}
       .tagline{color:var(--ink-soft); font-weight:700; font-size:clamp(15px,3.4vw,18px); margin:0;}
       .loop-line{
-        display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:14px auto 0;
-        font-family:"Space Mono",monospace; font-size:12.5px; font-weight:700; letter-spacing:.04em;
+        display:flex; flex-wrap:wrap; gap:12px 6px; justify-content:center; align-items:center;
+        margin:16px auto 2px; max-width:660px;
       }
-      .loop-line span{background:var(--panel); border:1.5px solid var(--line); border-radius:999px; padding:4px 11px;}
-      .loop-line .arr{border:none; background:none; padding:4px 0; color:var(--ink-soft);}
+      /* Each step is one atomic unit: its arrow travels WITH the pill it points
+         to, so a wrap moves arrow + pill together and an arrow can never be
+         left dangling alone at the end of a row. */
+      .loop-step{display:inline-flex; align-items:center; gap:6px;}
+      .loop-step .arr{
+        font-family:"Nunito",sans-serif; font-size:17px; font-weight:900; line-height:1;
+        color:var(--ink-soft);
+      }
+      /* Chunky like the buttons (solid fill + deep base shadow) but with no
+         hover lift or press sink — these are informational, not tappable. */
+      .loop-pill{
+        display:inline-flex; align-items:center; gap:9px; min-height:46px;
+        padding:7px 16px 7px 8px; border-radius:999px; white-space:nowrap;
+        font-family:"Bungee",cursive; font-weight:400; font-size:13px; letter-spacing:.01em; line-height:1.15;
+      }
+      .loop-pill .loop-num{
+        flex:0 0 auto; width:30px; height:30px; border-radius:50%;
+        display:inline-flex; align-items:center; justify-content:center;
+        font-size:14px; line-height:1; background:rgba(0,0,0,.18);
+      }
+      .loop-pill.is-gold{background:var(--accent); color:#1d1405; box-shadow:0 4px 0 var(--accent-dark);}
+      .loop-pill.is-teal{background:var(--teal); color:#fff; box-shadow:0 4px 0 var(--teal-dark);}
+      @media (prefers-color-scheme: dark){
+        .loop-pill.is-teal{color:#052e2d;}
+      }
+      @media (max-width:420px){
+        .loop-pill{font-size:12px; padding-right:13px;}
+      }
 
       /* ---------- Agent bar ---------- */
       .agentbar{
@@ -71,10 +97,13 @@
         background:var(--panel2); border:1.5px solid var(--line); border-radius:10px; padding:10px 12px;
       }
       .soundbtn{
-        display:inline-flex; align-items:center; gap:8px; min-height:48px; padding:10px 16px;
-        background:var(--panel2); border:1.5px solid var(--line); border-radius:10px;
-        font-weight:800; font-size:15px; color:var(--ink);
+        display:inline-flex; align-items:center; gap:8px; min-height:52px; padding:10px 18px;
+        background:var(--panel2); border:1.5px solid var(--line); border-radius:12px;
+        font-family:"Bungee",cursive; font-weight:400; font-size:13.5px; letter-spacing:.02em; color:var(--ink);
+        box-shadow:0 4px 0 var(--line); transition:transform .09s ease, box-shadow .09s ease;
       }
+      @media (hover:hover){ .soundbtn:hover{transform:translateY(-2px); box-shadow:0 6px 0 var(--line);} }
+      .soundbtn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--line);}
       .soundbtn[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent);}
 
       /* ---------- Status strip ---------- */
@@ -111,23 +140,39 @@
       }
 
       /* ---------- Mission grid ---------- */
-      .section-head{display:flex; align-items:baseline; gap:10px; margin:6px 0 12px;}
-      .section-head h2{font-family:"Bungee",cursive; font-weight:400; font-size:clamp(20px,4.5vw,26px);}
-      .section-head .note{color:var(--ink-soft); font-weight:700; font-size:14px;}
+      .section-head{display:block; text-align:left; margin:6px 0 12px;}
+      .section-head h2{font-family:"Bungee",cursive; font-weight:400; font-size:clamp(20px,4.5vw,26px); text-align:left;}
+      .section-head .note{display:block; color:var(--ink-soft); font-weight:700; font-size:14px; text-align:left; margin-top:4px; line-height:1.45;}
       .mission-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr)); gap:12px;}
       .mcard{
         text-align:left; background:var(--panel); border:1.5px solid var(--line); border-radius:var(--radius);
-        padding:16px 14px 14px; box-shadow:var(--shadow); color:var(--ink); width:100%;
-        transition:transform .15s ease, border-color .15s ease;
+        padding:16px 14px 14px; color:var(--ink); width:100%;
+        box-shadow:0 5px 0 var(--line), 0 12px 24px rgba(23,38,63,.14);
+        transition:transform .12s ease, border-color .15s ease, box-shadow .12s ease;
       }
-      .mcard:hover{transform:translateY(-3px); border-color:var(--accent);}
+      @media (hover:hover){
+        .mcard:hover{transform:translateY(-4px); border-color:var(--accent); box-shadow:0 8px 0 var(--line), 0 18px 30px rgba(23,38,63,.18);}
+      }
+      .mcard:active{transform:translateY(3px); box-shadow:0 1px 0 var(--line), 0 4px 10px rgba(23,38,63,.12);}
       .mcard .icon{
         width:52px; height:52px; border-radius:13px; background:var(--accent-soft);
         display:flex; align-items:center; justify-content:center; color:var(--accent-dark); margin-bottom:10px;
       }
-      .mcard h3{font-size:17.5px; font-weight:900;}
-      .mcard .skill{font-size:13.5px; font-weight:700; color:var(--ink-soft); margin:3px 0 10px; min-height:38px;}
+      .mcard h3{font-size:17.5px; font-weight:900; text-align:left;}
+      .mcard .skill{font-size:13.5px; font-weight:700; color:var(--ink-soft); margin:3px 0 10px; min-height:38px; text-align:left;}
       .mcard .meta{display:flex; justify-content:space-between; align-items:center; gap:6px;}
+      .mcard .playcue{
+        display:flex; align-items:center; gap:7px; margin-top:12px;
+        font-size:13px; font-weight:900; color:var(--teal); text-align:left; line-height:1;
+      }
+      .mcard .playcue .playtri{
+        display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto;
+        width:22px; height:22px; border-radius:50%; background:var(--teal); color:#fff;
+        font-size:10px; line-height:1; padding-left:2px;
+      }
+      @media (prefers-color-scheme: dark){
+        .mcard .playcue .playtri{color:#052e2d;}
+      }
       .lvlchip{font-family:"Space Mono",monospace; font-size:11.5px; font-weight:700; background:var(--teal-soft); color:var(--teal); border-radius:999px; padding:3px 9px;}
       .beststars{color:var(--gold); font-size:15px; letter-spacing:1px;}
       .beststars .off{color:var(--line);}
@@ -137,16 +182,17 @@
       .history ul{list-style:none; margin:0; padding:0; display:grid; gap:8px;}
       .history li{
         display:flex; align-items:center; gap:10px; background:var(--panel); border:1.5px solid var(--line);
-        border-radius:12px; padding:10px 14px; font-weight:800; font-size:15px;
+        border-radius:12px; padding:10px 14px; font-weight:800; font-size:15px; text-align:left;
       }
-      .history li .when{margin-left:auto; color:var(--ink-soft); font-size:13px; font-weight:700;}
+      .history li .when{flex:1 1 100%; margin-left:0; color:var(--ink-soft); font-size:13px; font-weight:700; text-align:left;}
       .history .empty{
         background:var(--panel2); border:1.5px dashed var(--line); border-radius:12px;
-        padding:16px; text-align:center; color:var(--ink-soft); font-weight:700;
+        padding:16px; text-align:left; color:var(--ink-soft); font-weight:700;
       }
       .history li{flex-wrap:wrap;}
       .history li .logdate{font-family:"Space Mono",monospace; font-size:12.5px; font-weight:700; color:var(--teal); white-space:nowrap;}
-      .logactions{margin-top:12px; display:flex; justify-content:flex-end;}
+      .logactions{margin-top:12px; display:block; width:100%;}
+      .logactions .btn{width:100%;}
       .logconfirm{
         margin-top:12px; background:var(--red-soft); border:1.5px solid var(--red);
         border-radius:12px; padding:14px 16px;
@@ -158,23 +204,45 @@
       /* ---------- Buttons ---------- */
       .btn{
         display:inline-flex; align-items:center; justify-content:center; gap:8px;
-        min-height:54px; padding:13px 24px; border-radius:13px; border:none;
-        background:var(--accent); color:#1d1405; font-size:17px; font-weight:900;
-        box-shadow:0 3px 0 var(--accent-dark); transition:transform .1s ease, box-shadow .1s ease;
+        min-height:60px; padding:15px 26px; border-radius:15px; border:none;
+        background:var(--accent); color:#1d1405; font-size:17px; font-weight:900; line-height:1.2;
+        box-shadow:0 5px 0 var(--accent-dark);
+        transition:transform .09s ease, box-shadow .09s ease;
       }
-      .btn:active{transform:translateY(2px); box-shadow:0 1px 0 var(--accent-dark);}
-      .btn.ghost{background:var(--panel); color:var(--ink); border:1.5px solid var(--line); box-shadow:none;}
-      .btn.teal{background:var(--teal); color:#fff; box-shadow:0 3px 0 #0a5c5b;}
+      @media (hover:hover){
+        .btn:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 7px 0 var(--accent-dark);}
+        .btn.ghost:hover:not(:disabled){box-shadow:0 7px 0 var(--line);}
+        .btn.teal:hover:not(:disabled){box-shadow:0 7px 0 var(--teal-dark);}
+        .btn.danger:hover:not(:disabled){box-shadow:0 7px 0 #932727;}
+      }
+      .btn:active:not(:disabled){transform:translateY(4px); box-shadow:0 1px 0 var(--accent-dark);}
+      .btn.ghost{background:var(--panel); color:var(--ink); border:1.5px solid var(--line); box-shadow:0 5px 0 var(--line);}
+      .btn.ghost:active:not(:disabled){box-shadow:0 1px 0 var(--line);}
+      .btn.teal{background:var(--teal); color:#fff; box-shadow:0 5px 0 var(--teal-dark);}
+      .btn.teal:active:not(:disabled){box-shadow:0 1px 0 var(--teal-dark);}
+      .btn.danger{background:#d64545; color:#fff; box-shadow:0 5px 0 #932727;}
+      .btn.danger:active:not(:disabled){box-shadow:0 1px 0 #932727;}
+      .btn.fun{font-family:"Bungee",cursive; font-weight:400; font-size:15px; letter-spacing:.03em;}
       .btn:disabled{opacity:.45; cursor:not-allowed; transform:none;}
-      .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;}
+      .btnrow{display:flex; gap:16px; flex-wrap:wrap; margin-top:24px;}
       .btnrow .btn{flex:1 1 160px;}
+      @media (max-width:620px){
+        .btnrow{flex-direction:column;}
+        .btnrow .btn{flex:none; width:100%;}
+      }
 
       /* ---------- Game view ---------- */
       .gamehead{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
       .backbtn{
-        display:inline-flex; align-items:center; gap:6px; min-height:46px; padding:9px 15px;
-        background:var(--panel); border:1.5px solid var(--line); border-radius:11px;
-        font-weight:900; font-size:15px; color:var(--ink);
+        display:inline-flex; align-items:center; gap:6px; min-height:50px; padding:10px 18px;
+        background:var(--teal); border:none; border-radius:12px;
+        font-family:"Bungee",cursive; font-weight:400; font-size:14px; letter-spacing:.02em; color:#fff;
+        box-shadow:0 4px 0 var(--teal-dark); transition:transform .09s ease, box-shadow .09s ease;
+      }
+      @media (hover:hover){ .backbtn:hover{transform:translateY(-2px); box-shadow:0 6px 0 var(--teal-dark);} }
+      .backbtn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--teal-dark);}
+      @media (prefers-color-scheme: dark){
+        .btn.teal,.backbtn{color:#052e2d;}
       }
       .gamehead h2{font-family:"Bungee",cursive; font-weight:400; font-size:clamp(20px,5vw,28px);}
       .phasecard{
@@ -203,7 +271,8 @@
         gap:1px; font-size:32px; line-height:1.1; padding:4px;
       }
       .tile .tname{font-size:10.5px; font-weight:800; color:var(--ink-soft); font-family:"Nunito",sans-serif; text-align:center; line-height:1.1;}
-      button.tile{cursor:pointer; font-family:inherit;}
+      button.tile{cursor:pointer; font-family:inherit; box-shadow:0 3px 0 var(--line); transition:transform .09s ease, box-shadow .09s ease;}
+      button.tile:active{transform:translateY(2px); box-shadow:0 1px 0 var(--line);}
       button.tile.sel{border-color:var(--teal); background:var(--teal-soft); box-shadow:0 0 0 2px var(--teal) inset;}
       button.tile.right{border-color:var(--green); background:var(--green-soft);}
       button.tile.wrong{border-color:var(--red); background:var(--red-soft);}
@@ -214,13 +283,16 @@
       .covered .ctext{font-size:16px; font-weight:900; color:var(--ink-soft); margin-top:6px; font-family:"Nunito",sans-serif;}
 
       /* answer options */
-      .opts{display:grid; gap:10px; margin-top:4px;}
+      .opts{display:grid; gap:12px; margin-top:4px;}
       @media (min-width:640px){ .opts.two{grid-template-columns:1fr 1fr;} }
       .opt{
-        display:flex; align-items:center; gap:12px; width:100%; text-align:left; min-height:58px;
+        display:flex; align-items:center; gap:12px; width:100%; text-align:left; min-height:62px;
         padding:12px 16px; border-radius:13px; background:var(--panel2); border:2px solid var(--line);
         font-size:17px; font-weight:800; color:var(--ink);
+        box-shadow:0 4px 0 var(--line); transition:transform .09s ease, box-shadow .09s ease;
       }
+      @media (hover:hover){ .opt:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 6px 0 var(--line);} }
+      .opt:active:not(:disabled){transform:translateY(3px); box-shadow:0 1px 0 var(--line);}
       .opt .oemoji{font-size:26px; line-height:1;}
       .opt.right{border-color:var(--green); background:var(--green-soft);}
       .opt.wrong{border-color:var(--red); background:var(--red-soft);}
@@ -233,14 +305,17 @@
       /* code pads */
       .padgrid{display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:440px; margin:4px auto 0;}
       .pad{
-        min-height:88px; border-radius:18px; border:3px solid transparent; color:#fff;
+        min-height:92px; border-radius:18px; border:3px solid transparent; color:#fff;
         display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-        font-weight:900; font-size:17px; transition:transform .08s ease, filter .08s ease;
+        font-family:"Bungee",cursive; font-weight:400; font-size:15px; letter-spacing:.02em;
+        box-shadow:0 5px 0 rgba(0,0,0,.28);
+        transition:transform .08s ease, filter .08s ease, box-shadow .08s ease;
       }
       .pad .pshape{font-size:30px; line-height:1;}
       .pad.lit{filter:brightness(1.45) saturate(1.2); transform:scale(1.045);}
       .pad.bad{border-color:var(--ink); filter:brightness(.75);}
       .pad:disabled{cursor:default;}
+      .pad:active:not(:disabled){transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.28);}
       .seqdots{display:flex; gap:7px; justify-content:center; margin:14px 0 2px; flex-wrap:wrap;}
       .seqdots i{width:15px; height:15px; border-radius:50%; background:var(--panel2); border:2px solid var(--line);}
       .seqdots i.done{background:var(--teal); border-color:var(--teal);}
@@ -271,7 +346,8 @@
         display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; font-size:36px; padding:4px;
       }
       .cell .cname{font-size:11px; font-weight:800; color:var(--ink-soft); text-align:center; line-height:1.1;}
-      button.cell{cursor:pointer; font-family:inherit;}
+      button.cell{cursor:pointer; font-family:inherit; box-shadow:0 3px 0 var(--line); transition:transform .09s ease, box-shadow .09s ease;}
+      button.cell:active{transform:translateY(2px); box-shadow:0 1px 0 var(--line);}
       button.cell.marked{border-color:var(--stamp); box-shadow:0 0 0 3px var(--red-soft); background:var(--red-soft);}
       button.cell.right{border-color:var(--green); background:var(--green-soft); box-shadow:none;}
       button.cell.missed{border-color:var(--gold); background:var(--accent-soft); box-shadow:0 0 0 2px var(--gold);}
@@ -327,10 +403,10 @@
           <h1>Operation <span class="rec">Recall</span></h1>
           <p class="tagline">Secret agent memory training for sharp young minds.</p>
           <div class="loop-line" aria-hidden="true">
-            <span>1 · Observe</span><span class="arr">→</span>
-            <span>2 · It disappears</span><span class="arr">→</span>
-            <span>3 · Recall</span><span class="arr">→</span>
-            <span>4 · Debrief</span>
+            <span class="loop-step"><span class="loop-pill is-gold"><span class="loop-num">1</span>Observe</span></span>
+            <span class="loop-step"><span class="arr">→</span><span class="loop-pill is-teal"><span class="loop-num">2</span>It disappears</span></span>
+            <span class="loop-step"><span class="arr">→</span><span class="loop-pill is-gold"><span class="loop-num">3</span>Recall</span></span>
+            <span class="loop-step"><span class="arr">→</span><span class="loop-pill is-teal"><span class="loop-num">4</span>Debrief</span></span>
           </div>
         </div>
 
@@ -613,6 +689,7 @@
             +'<p class="skill">'+m.skill+'</p>'
             +'<span class="meta"><span class="lvlchip">Level '+state.levels[k]+'</span>'
             +'<span class="beststars">'+starStr(b)+'</span></span>'
+            +'<span class="playcue" aria-hidden="true"><span class="playtri">▶</span>Tap to start</span>'
             +'</button>';
         }).join("");
         grid.querySelectorAll("[data-mission]").forEach(function(btn){
@@ -634,11 +711,11 @@
             logHTML+='<div class="logconfirm" role="alert">'
               +'<p>Clear the whole mission log? The saved entries on this device will be removed. Your stars, rank, and levels stay.</p>'
               +'<div class="btnrow">'
-              +'<button class="btn" id="clear-confirm" type="button">Yes, clear the log</button>'
-              +'<button class="btn ghost" id="clear-cancel" type="button">Keep my log</button>'
+              +'<button class="btn danger fun" id="clear-confirm" type="button">Yes, clear the log</button>'
+              +'<button class="btn teal fun" id="clear-cancel" type="button">Keep my log</button>'
               +'</div></div>';
           }else{
-            logHTML+='<div class="logactions"><button class="btn ghost" id="clear-log" type="button" style="min-height:48px; padding:10px 18px;">Clear mission log</button></div>';
+            logHTML+='<div class="logactions"><button class="btn ghost fun" id="clear-log" type="button" style="min-height:48px; padding:10px 18px;">Clear mission log</button></div>';
           }
           hb.innerHTML=logHTML;
           var clearBtn=document.getElementById("clear-log");
@@ -740,8 +817,8 @@
           +'<div class="tipbox"><span class="tk">Agent Debrief Tip</span>'+(stars>=2?m.tipGood:m.tipLow)+'</div>'
           +(lvlMsg?'<p class="lvlup">'+esc(lvlMsg)+'</p>':"")
           +'<div class="btnrow">'
-          +'<button class="btn" id="again" type="button">Play Again</button>'
-          +'<button class="btn ghost" id="tohq" type="button">Back to HQ</button>'
+          +'<button class="btn fun" id="again" type="button">Play Again</button>'
+          +'<button class="btn teal fun" id="tohq" type="button">Back to HQ</button>'
           +'</div>'
         );
         document.getElementById("again").addEventListener("click",function(){ startMission(key); });
@@ -826,7 +903,7 @@
               +'</div>'
               +'<p class="selcount" id="selcount">Picked 0 of '+items.length+'</p>'
               +'<p class="feedback" id="fb"></p>'
-              +'<div class="btnrow"><button class="btn teal" id="checkbtn" type="button" disabled>Check my picks</button></div>'
+              +'<div class="btnrow"><button class="btn fun" id="checkbtn" type="button" disabled>Check my picks</button></div>'
             );
             bodyEl.querySelectorAll(".tile").forEach(function(b){
               b.addEventListener("click",function(){
@@ -1088,7 +1165,7 @@
             +'<div class="scenegrid">'+after.map(function(c,ix){ return cellHTML(c,true,ix); }).join("")+'</div>'
             +'<p class="selcount" id="selcount">Marked 0 of '+nChanges+'</p>'
             +'<p class="feedback" id="fb"></p>'
-            +'<div class="btnrow"><button class="btn teal" id="reportbtn" type="button" disabled>Report to HQ</button></div>'
+            +'<div class="btnrow"><button class="btn fun" id="reportbtn" type="button" disabled>Report to HQ</button></div>'
           );
           bodyEl.querySelectorAll(".cell").forEach(function(b){
             b.addEventListener("click",function(){
@@ -1165,7 +1242,7 @@
             if(fb) fb.textContent="That's the whole route. Ready to retrace it?";
             var row=document.createElement("div");
             row.className="btnrow";
-            row.innerHTML='<button class="btn" id="retracebtn" type="button">Retrace the route</button>';
+            row.innerHTML='<button class="btn fun" id="retracebtn" type="button">Retrace the route</button>';
             bodyEl.appendChild(row);
             document.getElementById("retracebtn").addEventListener("click",function(){ playerTurn(cellsArr,positions); });
           },800*(count+1)+200);
